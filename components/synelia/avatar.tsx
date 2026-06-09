@@ -1,64 +1,51 @@
-import { getMember } from "@/lib/synelia/data";
+import { getMember, type TeamMember as TeamMemberType, type UserId } from "@/lib/synelia/data";
 
-/** A single round initials avatar for a team member id. */
+export type AvatarUser = string | UserId | TeamMemberType;
+
+/** Single round initials avatar — accepts a user id string OR a TeamMember object. */
 export function Avatar({
-  id,
-  size = 28,
-  className,
-}: {
-  id: string;
-  size?: number;
-  className?: string;
-}) {
-  const m = getMember(id);
-  const initials = m?.initials ?? id.slice(0, 2).toUpperCase();
-  const color = m?.color ?? "var(--primary-mid)";
+  user, id, size = 30, showOnline = false, square = false, ring,
+}: { user?: AvatarUser; id?: string; size?: number; showOnline?: boolean; square?: boolean; ring?: string }) {
+  const resolved = user ?? id;
+  if (!resolved) return null;
+  const u = typeof resolved === "object" ? resolved : getMember(resolved);
+  if (!u) return null;
+  const fs = Math.round(size * 0.4);
   return (
     <span
-      className={`synelia-avatar ${className ?? ""}`}
+      className={"av" + (square ? " sq" : "")}
       style={{
-        background: color,
-        width: size,
-        height: size,
-        fontSize: Math.round(size * 0.36),
+        width: size, height: size, background: u.color, fontSize: fs,
+        boxShadow: ring ? `0 0 0 2px ${ring}` : undefined,
       }}
-      title={m?.name ?? id}
+      title={u.name}
     >
-      {initials}
+      {u.initials}
+      {showOnline && u.online && <span className="online-dot" />}
     </span>
   );
 }
 
 /** Overlapped stack of avatars + "+N" overflow chip. */
 export function AvatarStack({
-  ids,
-  max = 4,
-  size = 28,
-}: {
-  ids: string[];
-  max?: number;
-  size?: number;
-}) {
+  ids, size = 26, max = 4, dark = false,
+}: { ids: string[]; size?: number; max?: number; dark?: boolean }) {
   const shown = ids.slice(0, max);
   const extra = ids.length - shown.length;
   return (
-    <span className="synelia-avatar-stack">
+    <span className="pr-stack" style={{ display: "inline-flex" }}>
       {shown.map((id) => (
-        <Avatar id={id} key={id} size={size} />
+        <Avatar key={id} user={id} size={size} ring={dark ? "var(--color-primary-dark)" : "#fff"} />
       ))}
-      {extra > 0 && (
-        <span
-          className="synelia-avatar"
-          style={{
-            background: "var(--primary-mid)",
-            width: size,
-            height: size,
-            fontSize: Math.round(size * 0.34),
-          }}
-        >
-          +{extra}
-        </span>
-      )}
+      {extra > 0 && <span className="pr-more">+{extra}</span>}
     </span>
   );
 }
+
+/** Magenta "En direct" pill with a pulsing dot — used on chat lists and project cards. */
+export function LivePill({ children = "En direct" }: { children?: React.ReactNode }) {
+  return <span className="pill pill-live"><span className="d" />{children}</span>;
+}
+
+// Local type so this file doesn't need an import alias
+type TeamMember = TeamMemberType;

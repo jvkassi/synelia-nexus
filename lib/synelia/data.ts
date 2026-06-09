@@ -10,8 +10,9 @@
 // away. See .hermes/kanban.md Phase 1B.
 
 import type {
-  SyneliaData, Chat, TeamMember, Project, Routine, Artifact, ProjectFile,
-  ArtifactKind, ProjectId, UserId,
+  SyneliaData, Chat, ChatMessage, TeamMember, Project, Routine, RoutineRun,
+  Artifact, ProjectFile, ArtifactKind, ProjectId, UserId, Prompt, PromptCategory,
+  Activity, RiskRow, Role, ChatsByProject,
 } from "./types";
 
 // ===== Core data =====
@@ -107,4 +108,4 @@ export const KIND_TEXT: Record<ArtifactKind, string> = {
 export { ME, TEAM, PROJECTS, CHATS };
 export const ARTIFACTS = ARTIFACTS_DATA;
 export const ROUTINES = ROUTINES_DATA;
-export type { Chat, ArtifactKind };
+export type { Chat, ArtifactKind, TeamMember, UserId, Project, Routine, Artifact, ProjectFile, Prompt, PromptCategory, ChatMessage, RoutineRun, Activity, RiskRow, Role, ChatsByProject };
