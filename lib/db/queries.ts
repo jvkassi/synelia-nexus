@@ -12,8 +12,8 @@ import {
   lt,
   type SQL,
 } from "drizzle-orm";
-import { drizzle } from "drizzle-orm/postgres-js";
-import postgres from "postgres";
+import { createClient } from "@libsql/client";
+import { drizzle } from "drizzle-orm/libsql";
 import { ChatbotError } from "../errors";
 import { generateUUID } from "../utils";
 import {
@@ -44,7 +44,11 @@ export type ArtifactKind = "text" | "code" | "image" | "sheet";
 /** Synelia Cowork — chat visibility scope. */
 export type VisibilityType = "private" | "public";
 
-const client = postgres(process.env.POSTGRES_URL ?? "");
+const rawUrl = process.env.DATABASE_URL ?? "file:./data/synelia-nexus.db";
+const dbUrl = /^(file:|libsql:|https?:|wss?:)/.test(rawUrl)
+  ? rawUrl
+  : `file:${rawUrl}`;
+const client = createClient({ url: dbUrl });
 const db = drizzle(client);
 
 export async function getUser(email: string): Promise<User[]> {
