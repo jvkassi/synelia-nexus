@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { Share2Icon } from "lucide-react";
 import Link from "next/link";
 import { SyneliaRule } from "@/components/synelia-rule";
