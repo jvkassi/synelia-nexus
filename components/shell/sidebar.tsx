@@ -145,9 +145,9 @@ export function Sidebar({
           <div className="nm" style={{ color: "#fff" }}>{currentUser.name}</div>
           <div className="rl">{currentUser.email}</div>
         </div>
-        <button className="gear" aria-label="Paramètres" type="button">
+        <Link href="/admin" className="gear" aria-label="Administration" title="Administration">
           <SettingsIcon size={15} />
-        </button>
+        </Link>
       </div>
     </aside>
   );
