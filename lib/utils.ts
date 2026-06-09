@@ -1,10 +1,13 @@
+import type { InferSelectModel } from "drizzle-orm";
 import type { UIMessage } from "ai";
 import { type ClassValue, clsx } from "clsx";
 import { formatISO } from "date-fns";
 import { twMerge } from "tailwind-merge";
-import type { DBMessage, Document } from "@/lib/db/schema";
+import { type DBMessage, document } from "@/lib/db/schema";
 import { ChatbotError, type ErrorCode } from "./errors";
 import type { ChatMessage } from "./types";
+
+type Document = InferSelectModel<typeof document>;
 
 export { generateUUID } from "@/lib/db/utils";
 
