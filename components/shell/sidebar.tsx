@@ -1,30 +1,20 @@
+"use client";
+
 import {
   LayoutGridIcon,
   LibraryIcon,
   PlusIcon,
   RepeatIcon,
   SettingsIcon,
+  LayoutGrid,
+  BoxIcon,
 } from "lucide-react";
 import Link from "next/link";
-import { SyneliaRule } from "@/components/synelia-rule";
+import { usePathname } from "next/navigation";
 import { Icon } from "@/components/synelia/icon";
 import { DEPARTMENT } from "@/lib/synelia/data";
-import { cn } from "@/lib/utils";
 
-/**
- * Synelia Cowork — sidebar.
- *
- * Reference: design `src/sidebar.jsx`.
- *   - Wordmark: SYNELIA • COWORK
- *   - Department selector card
- *   - White "Nouveau projet" button
- *   - Nav: Accueil / Bibliothèque de prompts / Artefacts / Routines
- *     (the "Activité de l'équipe" menu and online chrome were cut in design)
- *   - "PROJETS PARTAGÉS" section — shared project rows (+ live dot)
- *   - Footer: current user pill + settings gear
- */
-
-type SidebarProject = {
+export type SidebarProject = {
   id: string;
   name: string;
   icon: string;
@@ -32,20 +22,29 @@ type SidebarProject = {
   live?: boolean;
 };
 
-type SidebarProps = {
+export type SidebarProps = {
   currentUser: { name: string; email: string };
   projects: SidebarProject[];
   activeProjectId?: string;
+  routinesCount?: number;
+  onNewProject?: () => void;
 };
 
-const navItems = [
-  { href: "/", label: "Accueil", Icon: LayoutGridIcon },
-  { href: "/library", label: "Bibliothèque de prompts", Icon: LibraryIcon },
-  { href: "/artifacts", label: "Artefacts", Icon: LibraryIcon },
-  { href: "/routines", label: "Routines", Icon: RepeatIcon },
+const NAV_ITEMS = [
+  { href: "/", label: "Accueil", icon: "layout-grid" as const },
+  { href: "/library", label: "Bibliothèque de prompts", icon: "library" as const },
+  { href: "/artifacts", label: "Artefacts", icon: "folder-kanban" as const },
+  { href: "/routines", label: "Routines", icon: "repeat" as const },
 ];
 
-export function Sidebar({ currentUser, projects, activeProjectId }: SidebarProps) {
+export function Sidebar({
+  currentUser,
+  projects,
+  activeProjectId,
+  routinesCount,
+  onNewProject,
+}: SidebarProps) {
+  const pathname = usePathname();
   const initials = currentUser.name
     .split(" ")
     .map((n) => n[0])
@@ -54,133 +53,100 @@ export function Sidebar({ currentUser, projects, activeProjectId }: SidebarProps
     .toUpperCase();
 
   return (
-    <aside
-      className="flex h-dvh w-[264px] shrink-0 flex-col"
-      style={{ background: "var(--sidebar)", color: "var(--sidebar-foreground)" }}
-    >
+    <aside className="sidebar">
       {/* Wordmark */}
-      <div className="flex items-center gap-3 px-6 pt-6">
-        <span className="font-display text-[14px] font-extrabold tracking-[0.25em]">
-          SYNELIA
-        </span>
-        <span
-          aria-hidden
-          className="block h-1.5 w-1.5 rounded-full"
-          style={{ background: "var(--accent)" }}
-        />
-        <span className="font-display text-[10px] font-semibold tracking-[0.3em] text-white/60">
-          COWORK
-        </span>
+      <div className="sb-brand">
+        <span className="wm">SYNELIA</span>
+        <span className="dot" aria-hidden />
+        <span className="sub">COWORK</span>
       </div>
 
       {/* Department card */}
-      <div className="mx-4 mt-6">
-        <div className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left">
-          <span
-            className="flex size-7 items-center justify-center rounded text-[10px] font-extrabold text-white"
-            style={{ background: "var(--primary-mid)" }}
-          >
-            {DEPARTMENT.initials}
+      <div className="sb-dept">
+        <div className="d-ic">
+          <span style={{ fontSize: 10, fontWeight: 800, color: "#fff", letterSpacing: "0.04em" }}>
+            {DEPARTMENT.initials.slice(0, 2)}
           </span>
-          <span className="flex-1 font-body text-[12px] font-semibold">
-            {DEPARTMENT.name}
-          </span>
-          <span className="font-body text-[11px] text-white/50">
-            {DEPARTMENT.memberCount} membres
-          </span>
+        </div>
+        <div>
+          <div className="d-name">{DEPARTMENT.name}</div>
+          <div className="d-meta">{DEPARTMENT.memberCount} membres</div>
         </div>
       </div>
 
-      {/* "Nouveau projet" button */}
-      <div className="px-4 pt-4">
-        <Link
-          className="synelia-btn synelia-btn-ghost h-9 w-full justify-center text-[12px] font-bold"
-          href="/new-project"
-          style={{ background: "var(--background)" }}
-        >
-          <PlusIcon className="size-4" />
+      {/* Scrollable area */}
+      <div className="sb-scroll">
+        {/* New project button */}
+        <button className="sb-newbtn" type="button" onClick={onNewProject}>
+          <PlusIcon size={15} strokeWidth={2.5} />
           Nouveau projet
-        </Link>
-      </div>
+        </button>
 
-      <SyneliaRule className="mx-6 my-4" />
-
-      {/* Primary nav */}
-      <nav className="flex flex-col gap-0.5 px-3">
-        {navItems.map((item) => (
-          <Link
-            className={cn(
-              "flex items-center gap-2.5 rounded-md px-3 py-2 font-body text-[13px] font-semibold",
-              "text-white/80 transition-colors hover:bg-white/5 hover:text-white"
-            )}
-            href={item.href}
-            key={item.href}
-          >
-            <item.Icon className="size-[15px]" />
-            <span className="flex-1">{item.label}</span>
-          </Link>
-        ))}
-      </nav>
-
-      <SyneliaRule className="mx-6 my-4" />
-
-      {/* Projects section */}
-      <div className="flex flex-1 flex-col overflow-hidden">
-        <div className="px-6 pb-2 font-body text-[10px] font-bold tracking-[0.18em] text-white/50">
-          PROJETS PARTAGÉS
-        </div>
-        <ul className="flex-1 overflow-y-auto px-3 pb-4">
-          {projects.map((p) => (
-            <li key={p.id}>
+        {/* Primary nav */}
+        <nav className="sb-nav">
+          {NAV_ITEMS.map((item) => {
+            const isActive =
+              item.href === "/"
+                ? pathname === "/"
+                : pathname.startsWith(item.href);
+            return (
               <Link
-                aria-current={p.id === activeProjectId ? "page" : undefined}
-                className={cn(
-                  "flex items-center gap-2.5 rounded-md px-3 py-2 font-body text-[13px]",
-                  p.id === activeProjectId
-                    ? "bg-white/10 text-white"
-                    : "text-white/80 transition-colors hover:bg-white/5 hover:text-white"
-                )}
-                href={`/w/${p.id}`}
+                key={item.href}
+                href={item.href}
+                className={`sb-link${isActive ? " active" : ""}`}
               >
-                <span
-                  className="flex size-7 shrink-0 items-center justify-center rounded text-white"
-                  style={{ background: p.color }}
-                >
-                  <Icon className="size-3.5" name={p.icon} strokeWidth={2.4} />
+                <span className="ic">
+                  <Icon name={item.icon} size={15} strokeWidth={2} />
                 </span>
-                <span className="flex-1 truncate">{p.name}</span>
-                {p.live && (
-                  <span aria-label="En direct" className="synelia-live-dot" />
+                <span style={{ flex: 1 }}>{item.label}</span>
+                {item.href === "/routines" && routinesCount != null && routinesCount > 0 && (
+                  <span className="badge-n">{routinesCount}</span>
                 )}
               </Link>
-            </li>
-          ))}
-        </ul>
+            );
+          })}
+        </nav>
+
+        {/* Shared projects */}
+        <div className="sb-section">
+          Projets partagés
+          <button className="add" aria-label="Ajouter un projet" type="button" onClick={onNewProject}>
+            <PlusIcon size={13} />
+          </button>
+        </div>
+
+        {projects.map((p) => {
+          const isActive = p.id === activeProjectId;
+          return (
+            <Link
+              key={p.id}
+              href={`/w/${p.id}`}
+              className={`sb-proj${isActive ? " active" : ""}`}
+            >
+              <span className="p-ic" style={{ background: p.color }}>
+                <Icon name={p.icon} size={13} strokeWidth={2.2} style={{ color: "#fff" }} />
+              </span>
+              <span className="p-name">{p.name}</span>
+              {p.live && <span className="p-live" aria-label="En direct" />}
+            </Link>
+          );
+        })}
       </div>
 
-      {/* Footer — current user pill + settings */}
-      <div className="flex items-center gap-3 border-t border-white/10 p-4">
+      {/* User footer */}
+      <div className="sb-me">
         <span
-          aria-hidden
-          className="flex size-8 shrink-0 items-center justify-center rounded-full font-display text-[11px] font-bold"
-          style={{ background: "var(--accent)", color: "var(--white)" }}
+          className="av"
+          style={{ width: 32, height: 32, background: "var(--color-accent)", fontSize: 12 }}
         >
           {initials}
         </span>
-        <div className="flex-1 overflow-hidden">
-          <div className="truncate font-body text-[12px] font-semibold text-white">
-            {currentUser.name}
-          </div>
-          <div className="truncate font-body text-[10px] text-white/50">
-            {currentUser.email}
-          </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div className="nm" style={{ color: "#fff" }}>{currentUser.name}</div>
+          <div className="rl">{currentUser.email}</div>
         </div>
-        <button
-          aria-label="Paramètres"
-          className="text-white/60 transition-colors hover:text-white"
-          type="button"
-        >
-          <SettingsIcon className="size-4" />
+        <button className="gear" aria-label="Paramètres" type="button">
+          <SettingsIcon size={15} />
         </button>
       </div>
     </aside>

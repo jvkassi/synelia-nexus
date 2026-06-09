@@ -47,16 +47,65 @@ const CHATS: SyneliaData["CHATS"] = {
     { id: "c-archi",       title: "Schéma d'architecture cible",    project: "coris", lastBy: "yao",   preview: "Décris l'architecture applicative cible en couches…",              updated: "il y a 2 j",   live: false,                                    participants: ["awa", "yao"] },
     { id: "c-budget",      title: "Cadrage budgétaire",             project: "coris", lastBy: "awa",   preview: "Estime le budget de mise en conformité sur 18 mois…",              updated: "il y a 3 j",   live: false,                                    participants: ["awa", "mariam"] },
   ],
-  cnps: [], oneci: [], academy: [],
+  cnps: [
+    { id: "c-migration-plan" as ChatId, title: "Trajectoire de migration par vagues", project: "cnps", lastBy: "yao", preview: "Propose une trajectoire de migration en 4 vagues avec critères…", updated: "il y a 1 h", live: false, participants: ["awa", "yao", "ibrahim"], pinned: true },
+    { id: "c-archi-cible" as ChatId,    title: "Architecture cible cloud souverain",  project: "cnps", lastBy: "ibrahim", preview: "Décris l'architecture applicative cible pour le cloud souverain…", updated: "hier", live: false, participants: ["awa", "yao"] },
+    { id: "c-budget-cnps" as ChatId,    title: "Estimation budgétaire migration",      project: "cnps", lastBy: "awa",     preview: "Estime le coût total de la migration sur 24 mois…",              updated: "il y a 2 j", live: false, participants: ["awa", "mariam"] },
+  ],
+  oneci: [
+    { id: "c-soc-eval" as ChatId,    title: "Évaluation du SOC existant",         project: "oneci", lastBy: "kofi",    preview: "Analyse les capacités de détection et de réponse du SOC actuel…", updated: "hier", live: false, participants: ["awa", "kofi", "ibrahim"], pinned: true },
+    { id: "c-durcissement" as ChatId, title: "Plan de durcissement identité",     project: "oneci", lastBy: "ibrahim", preview: "Définit les mesures de durcissement de l'infrastructure d'identité…", updated: "il y a 2 j", live: false, participants: ["awa", "kofi"] },
+  ],
+  academy: [
+    { id: "c-cursus-data" as ChatId,    title: "Conception du parcours Data Engineering",     project: "academy", lastBy: "fatou",  preview: "Conçois un parcours de 8 modules pour les Data Engineers…",       updated: "il y a 1 j", live: false, participants: ["awa", "fatou", "mariam"], pinned: true },
+    { id: "c-evaluation" as ChatId,     title: "Grille d'évaluation des candidats",            project: "academy", lastBy: "mariam", preview: "Crée une grille d'évaluation des compétences techniques et soft…", updated: "il y a 2 j", live: false, participants: ["awa", "mariam"] },
+    { id: "c-employabilite" as ChatId,  title: "Rapport d'employabilité T1 2026",              project: "academy", lastBy: "awa",    preview: "Compile les indicateurs d'insertion pour la promo de mars 2026…",  updated: "il y a 3 j", live: false, participants: ["awa", "fatou"] },
+  ],
 };
 
 const ROUTINES_DATA: SyneliaData["ROUTINES"] = [
-  { id: "r1", title: "Veille cybersécurité hebdo",          cadence: "Chaque lundi · 08:00",   owner: "kofi",   next: "Lun. 9 juin",  project: "coris",   icon: "radar",          status: "active", ago: "il y a 2 j", prompt: "Chaque lundi à 08:00, rédige une synthèse de veille cybersécurité de la semaine : 5 menaces ou vulnérabilités majeures (score CVSS si disponible), leur impact potentiel sur nos clients des secteurs bancaire et public, et une recommandation d'action concrète pour chacune. Termine par une note de priorisation.", runs: [] },
-  { id: "r2", title: "Suivi des constats ouverts",           cadence: "Chaque vendredi · 17:00", owner: "awa",    next: "Ven. 6 juin",  project: "coris",   icon: "list-checks",    status: "active", ago: "il y a 6 h", prompt: "Chaque vendredi à 17:00, dresse l'état des constats d'audit encore ouverts sur le projet Coris Bank : nombre par niveau de criticité, constats clôturés dans la semaine, et les 3 constats critiques à surveiller en priorité. Présente un tableau de synthèse et conclus par le taux d'avancement global.", runs: [] },
-  { id: "r3", title: "Synthèse d'avancement migration",      cadence: "Chaque jeudi · 16:00",   owner: "yao",    next: "Jeu. 11 juin", project: "cnps",    icon: "cloud-cog",      status: "active", ago: "il y a 1 j", prompt: "Chaque jeudi à 16:00, produis une synthèse d'avancement de la migration cloud de la CNPS : applications migrées dans la semaine, vague en cours, points de blocage, et prochaines bascules planifiées. Ton sobre, prêt à transmettre au COPIL.", runs: [] },
-  { id: "r4", title: "Revue des candidatures reçues",         cadence: "Chaque lundi · 09:30",   owner: "mariam", next: "Lun. 9 juin",  project: "academy", icon: "users",          status: "paused", ago: "il y a 5 j", prompt: "Chaque lundi à 09:30, passe en revue les candidatures reçues pour le parcours Data Engineering : nombre de dossiers, répartition par profil, et présélection des candidats correspondant aux prérequis. Conclus par les entretiens à programmer.", runs: [] },
-  { id: "r5", title: "Génération des supports de module",     cadence: "Chaque mercredi · 14:00", owner: "fatou",  next: "Mer. 10 juin", project: "academy", icon: "graduation-cap", status: "active", ago: "il y a 3 j", prompt: "Chaque mercredi à 14:00, génère le support du prochain module du parcours Data Engineering : objectifs pédagogiques, plan détaillé, exercices pratiques et grille d'évaluation. Format prêt à relire avant publication.", runs: [] },
-  { id: "r6", title: "Rapport d'employabilité mensuel",       cadence: "1er du mois · 08:00",    owner: "mariam", next: "1 juil.",      project: "academy", icon: "bar-chart-3",    status: "active", ago: "il y a 5 j", prompt: "Le 1er de chaque mois à 08:00, compile le rapport d'employabilité de l'Open Digital Academy : taux d'insertion des dernières promotions, partenaires recruteurs, et indicateurs clés à présenter à la direction.", runs: [] },
+  { id: "r1", title: "Veille cybersécurité hebdo",          cadence: "Chaque lundi · 08:00",    owner: "kofi",   next: "Lun. 9 juin",  project: "coris",   icon: "radar",          status: "active", ago: "il y a 2 j",
+    prompt: "Chaque lundi à 08:00, rédige une synthèse de veille cybersécurité de la semaine : 5 menaces ou vulnérabilités majeures (score CVSS si disponible), leur impact potentiel sur nos clients des secteurs bancaire et public, et une recommandation d'action concrète pour chacune. Termine par une note de priorisation.",
+    runs: [
+      { title: "Veille du 2 juin 2026", date: "Lun. 2 juin · 08:04", ranFor: "1 min 42 s", thought: 3, output: "## Veille cybersécurité — semaine du 26 mai au 1er juin 2026\n\n**CVE-2026-31337** (CVSS 9.1) — Faille RCE dans OpenSSH 9.x. Impact élevé sur l'infrastructure des clients bancaires. **Recommandation** : patcher sous 48 h.\n\n**Ransomware LockBit 4.0** — Nouvelle vague ciblant les institutions financières africaines. **Recommandation** : renforcer les sauvegardes hors ligne et la segmentation réseau.\n\n**Credential stuffing OWA** — Tentatives massives sur les portails Exchange. **Recommandation** : activer l'authentification multifacteur sur tous les comptes.\n\n> Priorisation : CVE-2026-31337 > Ransomware > Credential stuffing" },
+      { title: "Veille du 26 mai 2026", date: "Lun. 26 mai · 08:02", ranFor: "1 min 58 s", thought: 2, output: "## Veille cybersécurité — semaine du 19 au 25 mai 2026\n\n**CVE-2026-28890** (CVSS 8.4) — Faille d'élévation de privilèges Windows Server 2022. **Recommandation** : déployer KB5037849.\n\n**Phishing ciblé OFA** — Campagne de spear-phishing ciblant les DSI de banques ivoiriennes. **Recommandation** : sensibiliser les équipes et bloquer les domaines identifiés.\n\n> Priorisation : CVE-2026-28890 > Phishing OFA" },
+    ]
+  },
+  { id: "r2", title: "Suivi des constats ouverts",           cadence: "Chaque vendredi · 17:00", owner: "awa",    next: "Ven. 6 juin",  project: "coris",   icon: "list-checks",    status: "active", ago: "il y a 6 h",
+    prompt: "Chaque vendredi à 17:00, dresse l'état des constats d'audit encore ouverts sur le projet Coris Bank : nombre par niveau de criticité, constats clôturés dans la semaine, et les 3 constats critiques à surveiller en priorité. Présente un tableau de synthèse et conclus par le taux d'avancement global.",
+    runs: [
+      { title: "Rapport du 30 mai 2026", date: "Ven. 30 mai · 17:01", ranFor: "2 min 14 s", thought: 4, output: "## Suivi des constats — 30 mai 2026\n\n| Criticité | Ouverts | Clôturés cette semaine |\n|-----------|---------|------------------------|\n| Critique  | 3       | 1                      |\n| Élevé     | 4       | 2                      |\n| Moyen     | 3       | 0                      |\n| Faible    | 2       | 1                      |\n\n**Top 3 constats critiques à surveiller :**\n1. Absence de MFA sur les accès VPN administrateurs (C1)\n2. Politique de mots de passe non conforme PCI-DSS (C2)\n3. Journaux d'audit incomplets sur le système de paiement (C3)\n\n**Taux d'avancement global : 33 %** (4/12 constats clôturés)" },
+      { title: "Rapport du 23 mai 2026", date: "Ven. 23 mai · 17:03", ranFor: "1 min 51 s", thought: 3, output: "## Suivi des constats — 23 mai 2026\n\n| Criticité | Ouverts | Clôturés cette semaine |\n|-----------|---------|------------------------|\n| Critique  | 4       | 0                      |\n| Élevé     | 6       | 1                      |\n| Moyen     | 3       | 0                      |\n| Faible    | 3       | 2                      |\n\n**Taux d'avancement global : 25 %** (3/12 constats clôturés)" },
+      { title: "Rapport du 16 mai 2026", date: "Ven. 16 mai · 17:00", ranFor: "1 min 38 s", thought: 2, output: "## Suivi des constats — 16 mai 2026\n\nAudit démarré cette semaine. 12 constats identifiés, aucun clôturé.\n\n**Taux d'avancement global : 0 %**" },
+    ]
+  },
+  { id: "r3", title: "Synthèse d'avancement migration",      cadence: "Chaque jeudi · 16:00",   owner: "yao",    next: "Jeu. 11 juin", project: "cnps",    icon: "cloud-cog",      status: "active", ago: "il y a 1 j",
+    prompt: "Chaque jeudi à 16:00, produis une synthèse d'avancement de la migration cloud de la CNPS : applications migrées dans la semaine, vague en cours, points de blocage, et prochaines bascules planifiées. Ton sobre, prêt à transmettre au COPIL.",
+    runs: [
+      { title: "Synthèse du 5 juin 2026", date: "Jeu. 5 juin · 16:02", ranFor: "2 min 03 s", thought: 3, output: "## Avancement migration cloud CNPS — 5 juin 2026\n\n**Vague en cours :** Vague 1 — Applications non critiques (8/14 migrées)\n\n**Migrées cette semaine :** Portail RH, Messagerie interne\n\n**Points de blocage :**\n- Dépendance legacy sur le module paie (résolution prévue semaine 24)\n- Validation juridique du contrat hébergement souverain en attente\n\n**Prochaines bascules :** Gestion documentaire (12 juin), Intranet (19 juin)\n\n**Avancement global Vague 1 : 57 %**" },
+      { title: "Synthèse du 29 mai 2026", date: "Jeu. 29 mai · 16:01", ranFor: "1 min 55 s", thought: 2, output: "## Avancement migration cloud CNPS — 29 mai 2026\n\n**Vague en cours :** Vague 1\n\n**Migrées cette semaine :** Annuaire LDAP, Service de monitoring\n\n**Avancement global Vague 1 : 43 %**" },
+    ]
+  },
+  { id: "r4", title: "Revue des candidatures reçues",         cadence: "Chaque lundi · 09:30",   owner: "mariam", next: "Lun. 9 juin",  project: "academy", icon: "users",          status: "paused", ago: "il y a 5 j",
+    prompt: "Chaque lundi à 09:30, passe en revue les candidatures reçues pour le parcours Data Engineering : nombre de dossiers, répartition par profil, et présélection des candidats correspondant aux prérequis. Conclus par les entretiens à programmer.",
+    runs: [
+      { title: "Revue du 2 juin 2026", date: "Lun. 2 juin · 09:31", ranFor: "1 min 22 s", thought: 2, output: "## Revue des candidatures — 2 juin 2026\n\n**Dossiers reçus :** 47 (+12 cette semaine)\n\n**Répartition :** 21 Data Analysts, 18 Data Engineers, 8 Data Scientists\n\n**Présélectionnés :** 14 candidats répondant aux prérequis techniques\n\n**Entretiens à programmer :** 8 pour la semaine du 9 juin (créneaux à confirmer avec Fatou)" },
+    ]
+  },
+  { id: "r5", title: "Génération des supports de module",     cadence: "Chaque mercredi · 14:00", owner: "fatou",  next: "Mer. 10 juin", project: "academy", icon: "graduation-cap", status: "active", ago: "il y a 3 j",
+    prompt: "Chaque mercredi à 14:00, génère le support du prochain module du parcours Data Engineering : objectifs pédagogiques, plan détaillé, exercices pratiques et grille d'évaluation. Format prêt à relire avant publication.",
+    runs: [
+      { title: "Module 5 — Pipelines de données", date: "Mer. 4 juin · 14:03", ranFor: "3 min 28 s", thought: 5, output: "## Module 5 : Pipelines de données (ETL/ELT)\n\n**Objectifs pédagogiques :**\n- Maîtriser les patterns ETL et ELT\n- Implémenter un pipeline avec Apache Airflow\n- Gérer la qualité des données en production\n\n**Plan (4 séances de 3 h) :**\n1. Concepts fondamentaux des pipelines de données\n2. Orchestration avec Apache Airflow\n3. Qualité et observabilité des données\n4. Projet fil rouge — pipeline end-to-end\n\n**Exercice pratique :** Construire un pipeline d'ingestion des données de ventes d'un retailer fictif." },
+      { title: "Module 4 — SQL avancé & dbt", date: "Mer. 28 mai · 14:01", ranFor: "2 min 52 s", thought: 4, output: "## Module 4 : SQL avancé et dbt\n\n**Objectifs pédagogiques :**\n- Maîtriser les fonctions analytiques SQL\n- Utiliser dbt pour la transformation des données\n- Documenter et tester les modèles\n\n**Plan :** 4 séances de 3 h couvrant les CTEs, window functions, dbt core et tests.\n\n**Exercice pratique :** Modéliser un entrepôt de données e-commerce avec dbt." },
+      { title: "Module 3 — Python pour la data", date: "Mer. 21 mai · 14:00", ranFor: "2 min 41 s", thought: 3, output: "## Module 3 : Python pour la data\n\n**Objectifs :** Pandas, NumPy, visualisation avec Matplotlib/Seaborn.\n\n**Plan :** 4 séances couvrant la manipulation de DataFrames, l'analyse exploratoire et la visualisation." },
+    ]
+  },
+  { id: "r6", title: "Rapport d'employabilité mensuel",       cadence: "1er du mois · 08:00",    owner: "mariam", next: "1 juil.",      project: "academy", icon: "bar-chart-3",    status: "active", ago: "il y a 5 j",
+    prompt: "Le 1er de chaque mois à 08:00, compile le rapport d'employabilité de l'Open Digital Academy : taux d'insertion des dernières promotions, partenaires recruteurs, et indicateurs clés à présenter à la direction.",
+    runs: [
+      { title: "Rapport de juin 2026", date: "Lun. 1 juin · 08:02", ranFor: "2 min 09 s", thought: 3, output: "## Rapport d'employabilité — juin 2026\n\n**Promo mars 2026 (32 diplômés) :**\n- Taux d'insertion à 3 mois : **87.5 %** (28/32)\n- Délai médian d'embauche : 6 semaines\n- Salaire médian à l'embauche : 680 000 FCFA / mois\n\n**Partenaires recruteurs actifs :** Orange CI, MTN, BNI, Ecobank, Wave\n\n**Indicateurs clés :**\n- NPS entreprises partenaires : +68\n- Taux de recommandation des diplômés : 94 %\n\n**Objectif juillet :** Signer 2 nouveaux partenariats (Société Générale CI, Jumia)." },
+    ]
+  },
 ];
 
 const ARTIFACTS_DATA: SyneliaData["ARTIFACTS"] = [
@@ -104,6 +153,23 @@ const PROMPTS_DATA: SyneliaData["PROMPTS"] = [
   { id: "p-routine",      title: "Routine de revue hebdomadaire",         cat: "ops",   icon: "repeat",          author: "awa",  uses: 6,  pinned: false, official: false, desc: "Routine récurrente : génère une revue hebdomadaire des projets en cours avec avancement et blocages.", body: "Tu es lead PMO. Chaque vendredi à 17:00, compile une revue hebdomadaire des projets en cours :\n\n1. Avancement par projet (% global, jalons franchis, jalons glissés)\n2. Risques et blocages identifiés\n3. Décisions à prendre la semaine suivante\n4. Charge par équipe\nFormat prêt à diffuser à la direction." },
 ];
 
+const RISK_ROWS_DATA: SyneliaData["RISK_ROWS"] = [
+  { c: "Absence d'authentification multifacteur sur les accès VPN administrateurs", fam: "Contrôle d'accès", cote: "C1", lvl: "crit", owner: "Yao" },
+  { c: "Politique de mots de passe non conforme aux exigences PCI-DSS v4", fam: "Contrôle d'accès", cote: "C2", lvl: "crit", owner: "Kofi" },
+  { c: "Journaux d'audit incomplets sur le système de traitement des paiements", fam: "Traçabilité", cote: "C3", lvl: "crit", owner: "Yao" },
+  { c: "Absence de chiffrement des données sensibles au repos dans la base Oracle", fam: "Protection des données", cote: "C4", lvl: "high", owner: "Fatou" },
+  { c: "Correctifs de sécurité non appliqués sur 4 serveurs Windows Server 2019", fam: "Gestion des vulnérabilités", cote: "C5", lvl: "high", owner: "Yao" },
+  { c: "Cloisonnement réseau insuffisant entre la zone de production et la DMZ", fam: "Architecture réseau", cote: "C6", lvl: "high", owner: "Ibrahim" },
+  { c: "Droits d'accès excessifs accordés à 12 comptes utilisateurs de service", fam: "Contrôle d'accès", cote: "C7", lvl: "high", owner: "Kofi" },
+  { c: "Absence de procédure formalisée de réponse aux incidents de sécurité", fam: "Gouvernance", cote: "C8", lvl: "med", owner: "Awa" },
+  { c: "Tests d'intrusion non réalisés depuis plus de 18 mois", fam: "Gestion des vulnérabilités", cote: "C9", lvl: "med", owner: "Kofi" },
+  { c: "Documentation de l'architecture applicative absente ou obsolète", fam: "Documentation", cote: "C10", lvl: "med", owner: "Yao" },
+  { c: "Sauvegardes non testées depuis 6 mois — RPO non garanti", fam: "Continuité d'activité", cote: "C11", lvl: "low", owner: "Ibrahim" },
+  { c: "Absence de politique de classification des actifs informationnels", fam: "Gouvernance", cote: "C12", lvl: "low", owner: "Awa" },
+];
+
+const LIVE_AI_REPLY_DATA = "Voici la matrice consolidée des 12 constats d'audit, classés par famille et niveau de criticité…";
+
 export const SYN: SyneliaData = {
   TEAM, ME, PROJECTS, CHATS,
   ROUTINES: ROUTINES_DATA,
@@ -111,8 +177,8 @@ export const SYN: SyneliaData = {
   ARTIFACTS: ARTIFACTS_DATA,
   ACTIVITY: [],
   THREAD_SYNTHESE: THREAD_SYNTHESE_DATA,
-  LIVE_AI_REPLY: "",
-  RISK_ROWS: [],
+  LIVE_AI_REPLY: LIVE_AI_REPLY_DATA,
+  RISK_ROWS: RISK_ROWS_DATA,
   PROMPT_CATS: PROMPT_CATS_DATA,
   PROMPTS: PROMPTS_DATA,
 };

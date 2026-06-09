@@ -2,200 +2,160 @@ export const dynamic = "force-dynamic";
 
 import { Share2Icon } from "lucide-react";
 import Link from "next/link";
-import { SyneliaRule } from "@/components/synelia-rule";
 import { Avatar } from "@/components/synelia/avatar";
 import { Icon } from "@/components/synelia/icon";
 import {
+  ensureLoaded,
   ARTIFACTS,
-  type ArtifactKind,
   getMember,
   KIND_TEXT,
   KIND_VAR,
   PROJECTS,
   projectNameOf,
-} from "@/lib/synelia/data";
+} from "@/lib/synelia/queries";
+import type { ArtifactKind } from "@/lib/synelia/types";
 
-const KINDS: { key: "all" | ArtifactKind; label: string }[] = [
-  { key: "all", label: "Tous" },
-  { key: "Document", label: "Document" },
-  { key: "Tableur", label: "Tableur" },
-  { key: "Diagramme", label: "Diagramme" },
+const KINDS: { key: "all" | ArtifactKind; label: string; cls: string }[] = [
+  { key: "all", label: "Tous", cls: "" },
+  { key: "Document", label: "Document", cls: "k-doc" },
+  { key: "Tableur", label: "Tableur", cls: "k-sheet" },
+  { key: "Diagramme", label: "Diagramme", cls: "k-diag" },
 ];
+
+const KIND_IC: Record<ArtifactKind, string> = {
+  Document: "k-doc",
+  Tableur: "k-sheet",
+  Diagramme: "k-diag",
+};
 
 export default async function ArtifactsPage({
   searchParams,
 }: {
   searchParams: Promise<{ project?: string; kind?: string }>;
 }) {
+  await ensureLoaded();
   const { project = "all", kind = "all" } = await searchParams;
 
-  const filtered = ARTIFACTS.filter(
+  const allArtifacts = ARTIFACTS();
+  const projects = PROJECTS();
+
+  const filtered = allArtifacts.filter(
     (a) =>
       (project === "all" || a.project === project) &&
       (kind === "all" || a.kind === kind)
   );
-  const sharedCount = ARTIFACTS.filter((a) => a.shared).length;
+  const sharedCount = allArtifacts.filter((a) => a.shared).length;
 
   const hrefWith = (next: { project?: string; kind?: string }) => {
     const sp = new URLSearchParams();
     const p = next.project ?? project;
     const k = next.kind ?? kind;
-    if (p !== "all") {
-      sp.set("project", p);
-    }
-    if (k !== "all") {
-      sp.set("kind", k);
-    }
+    if (p !== "all") sp.set("project", p);
+    if (k !== "all") sp.set("kind", k);
     const qs = sp.toString();
     return qs ? `/artifacts?${qs}` : "/artifacts";
   };
 
   return (
-    <div className="mx-auto max-w-[1280px] px-10 py-10">
-      <header className="flex items-end justify-between">
-        <div>
-          <span className="synelia-eyebrow">Tous les projets</span>
-          <h1 className="mt-2 font-display text-[32px] font-bold leading-tight text-[var(--primary)]">
-            Artefacts
-          </h1>
-          <p className="mt-1 font-body text-[14px] text-[var(--text-muted)]">
-            {ARTIFACTS.length} artefacts produits par votre équipe et l&rsquo;IA ·{" "}
-            <span className="font-semibold text-[var(--success)]">
-              {sharedCount} partagés par lien
-            </span>
-          </p>
-        </div>
-      </header>
-      <SyneliaRule />
+    <div style={{ maxWidth: 1180, margin: "0 auto", padding: "32px 36px 60px" }}>
+      {/* HEADER */}
+      <div style={{ marginBottom: 6 }}>
+        <div className="dash-kicker">Tous les projets</div>
+        <h1 style={{ margin: "6px 0 0" }}>Artefacts</h1>
+        <p style={{ fontSize: 14, color: "var(--color-text-muted)", marginTop: 8 }}>
+          {allArtifacts.length} artefacts produits par votre équipe et l&rsquo;IA{" "}
+          <span style={{ color: "var(--color-success)", fontWeight: 600 }}>
+            · {sharedCount} partagés par lien
+          </span>
+        </p>
+      </div>
+      <div className="rule-mag" />
 
-      {/* PROJECT FILTER CHIPS */}
-      <section className="mt-6 flex flex-wrap items-center gap-2">
-        <span className="font-body text-[11px] font-bold tracking-[0.12em] text-[var(--text-muted)]">
-          PROJET
+      {/* FILTERS */}
+      <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 8, marginBottom: 10 }}>
+        <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", color: "var(--color-text-muted)", textTransform: "uppercase" }}>
+          Projet
         </span>
-        <FilterChip active={project === "all"} href={hrefWith({ project: "all" })} label="Tous les projets" />
-        {PROJECTS.map((p) => (
-          <FilterChip
-            active={project === p.id}
-            color={p.color}
-            href={hrefWith({ project: p.id })}
+        {[{ id: "all", name: "Tous", color: undefined as string | undefined }, ...projects.map((p) => ({ id: p.id, name: p.name, color: p.color }))].map((p) => (
+          <Link
             key={p.id}
-            label={p.name}
-          />
+            href={hrefWith({ project: p.id })}
+            className={`lib-cat${project === p.id ? " on" : ""}`}
+          >
+            {p.color && project !== p.id && (
+              <span style={{ width: 8, height: 8, borderRadius: "50%", background: p.color, display: "inline-block" }} />
+            )}
+            {p.name}
+          </Link>
         ))}
-      </section>
+      </div>
 
-      {/* KIND SEGMENTED CONTROL */}
-      <section className="mt-3 flex items-center gap-2">
-        <span className="font-body text-[11px] font-bold tracking-[0.12em] text-[var(--text-muted)]">
-          TYPE
+      {/* KIND SEGMENTED */}
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 24 }}>
+        <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", color: "var(--color-text-muted)", textTransform: "uppercase" }}>
+          Type
         </span>
-        <div className="flex items-center gap-1 rounded-md border border-[var(--border)] bg-white p-0.5">
-          {KINDS.map((k) => {
-            const isActive = kind === k.key;
-            return (
-              <Link
-                className="rounded-sm px-3 py-1 font-body text-[12px] font-semibold transition-colors"
-                href={hrefWith({ kind: k.key })}
-                key={k.key}
-                style={
-                  isActive
-                    ? { background: "var(--primary)", color: "var(--white)" }
-                    : { color: "var(--text-sub)" }
-                }
-              >
-                {k.label}
-              </Link>
-            );
-          })}
+        <div className="artg-kinds">
+          {KINDS.map((k) => (
+            <Link
+              key={k.key}
+              href={hrefWith({ kind: k.key })}
+              className={`seg-btn${kind === k.key ? " on" : ""}`}
+            >
+              {k.label}
+            </Link>
+          ))}
         </div>
-        <span className="ml-auto font-body text-[12px] text-[var(--text-muted)]">
+        <span className="artg-count" style={{ marginLeft: "auto" }}>
           {filtered.length} résultat{filtered.length > 1 ? "s" : ""}
         </span>
-      </section>
+      </div>
 
-      {/* ARTIFACT GRID */}
+      {/* GRID */}
       {filtered.length === 0 ? (
-        <div className="mt-8 flex items-center justify-center rounded-lg border border-dashed border-[var(--border)] bg-white px-6 py-16">
-          <p className="font-body text-[13px] text-[var(--text-muted)]">
-            Aucun artefact ne correspond à ce filtre.
-          </p>
+        <div className="empty" style={{ border: "1.5px dashed var(--color-border)", borderRadius: "var(--radius-md)", padding: "60px 20px" }}>
+          Aucun artefact ne correspond à ce filtre.
         </div>
       ) : (
-        <section className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+        <div className="artg-grid">
           {filtered.map((a) => (
-            <Link
-              className="group flex min-h-[160px] flex-col gap-2 rounded-lg border border-[var(--border)] bg-white p-4 transition-all hover:border-[var(--primary-mid)] hover:shadow-[var(--shadow-md)]"
-              href={`/a/${a.id}`}
-              key={a.id}
-            >
-              <div className="flex items-start justify-between">
-                <span
-                  className="synelia-kind-chip"
-                  style={{ background: KIND_VAR[a.kind], color: KIND_TEXT[a.kind] }}
-                >
-                  {a.kind}
+            <Link key={a.id} href={`/a/${a.id}`} className="artg-card">
+              <div className="agc-top">
+                <span className={`agc-ic ${KIND_IC[a.kind]}`}>
+                  <Icon name={a.icon} size={20} />
                 </span>
-                {a.live && <span className="synelia-live-pill">En cours</span>}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div className="agc-title">{a.title}</div>
+                  <div className="agc-kind">
+                    <span className={`kind-chip ${KIND_IC[a.kind]}`}>{a.kind}</span>
+                    {a.live && <span className="pill-live pill" style={{ padding: "2px 9px", fontSize: "10.5px" }}><span className="d" />En cours</span>}
+                  </div>
+                </div>
               </div>
-              <h3 className="line-clamp-2 font-display text-[14px] font-semibold text-[var(--primary)] group-hover:text-[var(--primary-mid)]">
-                {a.title}
-              </h3>
-              <div
-                className="mt-1 inline-flex w-fit items-center gap-1.5 rounded-full px-2 py-0.5 font-body text-[10px] font-semibold"
-                style={{ background: "var(--secondary)", color: "var(--text-sub)" }}
-              >
-                <Icon className="size-3" name={a.icon} />
+              <div className="agc-proj">
+                <span className="ap-ic" style={{ background: projects.find((p) => p.id === a.project)?.color ?? "var(--color-primary)", width: 22, height: 22, borderRadius: 6 }}>
+                  <Icon name={projects.find((p) => p.id === a.project)?.emoji ?? "folder"} size={12} style={{ color: "#fff" }} />
+                </span>
                 {projectNameOf(a.project)}
               </div>
-              <div className="mt-auto flex items-center gap-2 font-body text-[10px] text-[var(--text-muted)]">
-                <Avatar id={a.creator} size={20} />
-                <span className="font-semibold text-[var(--text-sub)]">
+              <div className="agc-foot">
+                <span className="agc-by">
+                  <Avatar id={a.creator} size={22} />
                   {getMember(a.creator)?.name.split(" ")[0] ?? a.creator}
+                  <span className="dotsep">·</span>
+                  {a.when}
                 </span>
-                <span aria-hidden>&middot;</span>
-                <span>{a.when}</span>
                 {a.shared && (
-                  <Share2Icon
-                    aria-label="Lien de partage actif"
-                    className="ml-auto size-3"
-                    style={{ color: "var(--success)" }}
-                  />
+                  <span className="agc-shared" style={{ marginLeft: "auto" }}>
+                    <Share2Icon size={12} />
+                    Partagé
+                  </span>
                 )}
               </div>
             </Link>
           ))}
-        </section>
+        </div>
       )}
     </div>
-  );
-}
-
-function FilterChip({
-  href,
-  label,
-  active,
-  color,
-}: {
-  href: string;
-  label: string;
-  active: boolean;
-  color?: string;
-}) {
-  return (
-    <Link
-      className="flex items-center gap-1.5 rounded-full border border-[var(--border)] bg-white px-3 py-1.5 font-body text-[12px] font-semibold text-[var(--text-sub)] transition-colors hover:border-[var(--primary-mid)] hover:text-[var(--primary)]"
-      href={href}
-      style={
-        active
-          ? { background: "var(--primary)", borderColor: "var(--primary)", color: "var(--white)" }
-          : undefined
-      }
-    >
-      {color && (
-        <span aria-hidden className="size-2 rounded-full" style={{ background: color }} />
-      )}
-      {label}
-    </Link>
   );
 }
