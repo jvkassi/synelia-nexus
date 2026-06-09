@@ -9,7 +9,11 @@ export async function proxy(request: NextRequest) {
     return new Response("pong", { status: 200 });
   }
 
-  if (pathname.startsWith("/api/auth")) {
+  if (
+    pathname === "/login" ||
+    pathname === "/register" ||
+    pathname.startsWith("/api/auth")
+  ) {
     return NextResponse.next();
   }
 
@@ -25,7 +29,7 @@ export async function proxy(request: NextRequest) {
     const redirectUrl = encodeURIComponent(new URL(request.url).pathname);
 
     return NextResponse.redirect(
-      new URL(`${base}/api/auth/guest?redirectUrl=${redirectUrl}`, request.url)
+      new URL(`${base}/login?next=${redirectUrl}`, request.url)
     );
   }
 

@@ -14,8 +14,6 @@ import {
 } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
-import type { ArtifactKind } from "@/components/chat/artifact";
-import type { VisibilityType } from "@/components/chat/visibility-selector";
 import { ChatbotError } from "../errors";
 import { generateUUID } from "../utils";
 import {
@@ -33,6 +31,19 @@ import {
 } from "./schema";
 import { generateHashedPassword } from "./utils";
 
+/**
+ * Synelia Cowork — artifact kind. The Vercel-fork schema currently uses
+ * the enum { text | code | image | sheet }. Phase 2 of the rebuild plan
+ * migrates the schema to the Synelia closed set { Document | Tableur |
+ * Diagramme } — at which point this type updates to match.
+ * See /opt/data/synelia-nexus/DESIGN.md and
+ * .hermes/DISCOVERY-2026-06-09.md.
+ */
+export type ArtifactKind = "text" | "code" | "image" | "sheet";
+
+/** Synelia Cowork — chat visibility scope. */
+export type VisibilityType = "private" | "public";
+
 const client = postgres(process.env.POSTGRES_URL ?? "");
 const db = drizzle(client);
 
@@ -47,11 +58,11 @@ export async function getUser(email: string): Promise<User[]> {
   }
 }
 
-export async function createUser(email: string, password: string) {
+export async function createUser(email: string, password: string, name?: string) {
   const hashedPassword = generateHashedPassword(password);
 
   try {
-    return await db.insert(user).values({ email, password: hashedPassword });
+    return await db.insert(user).values({ email, password: hashedPassword, ...(name ? { name } : {}) });
   } catch (_error) {
     throw new ChatbotError("bad_request:database", "Failed to create user");
   }

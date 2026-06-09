@@ -1,52 +1,19 @@
-import type { InferUITool, UIMessage } from "ai";
-import { z } from "zod";
-import type { ArtifactKind } from "@/components/chat/artifact";
-import type { createDocument } from "./ai/tools/create-document";
-import type { getWeather } from "./ai/tools/get-weather";
-import type { requestSuggestions } from "./ai/tools/request-suggestions";
-import type { updateDocument } from "./ai/tools/update-document";
-import type { Suggestion } from "./db/schema";
+import type { UIMessage } from "ai";
 
-export const messageMetadataSchema = z.object({
-  createdAt: z.string(),
-});
+/**
+ * Synelia Cowork — shared types.
+ *
+ * Kept intentionally minimal until the chat data model is migrated
+ * (Phase 2 of the rebuild plan; see .hermes/TODO.md). For now we
+ * just re-export the AI SDK's UIMessage as the chat-message shape,
+ * and define the small Attachment type the prompt-input UI uses.
+ *
+ * DO NOT add Vercel-fork-shaped types here (e.g. tool registries,
+ * document/suggestion unions, visibility-selector unions). Those
+ * come back in Phase 2 alongside the Workspace/Thread schema.
+ */
 
-export type MessageMetadata = z.infer<typeof messageMetadataSchema>;
-
-type weatherTool = InferUITool<typeof getWeather>;
-type createDocumentTool = InferUITool<ReturnType<typeof createDocument>>;
-type updateDocumentTool = InferUITool<ReturnType<typeof updateDocument>>;
-type requestSuggestionsTool = InferUITool<
-  ReturnType<typeof requestSuggestions>
->;
-
-export type ChatTools = {
-  getWeather: weatherTool;
-  createDocument: createDocumentTool;
-  updateDocument: updateDocumentTool;
-  requestSuggestions: requestSuggestionsTool;
-};
-
-export type CustomUIDataTypes = {
-  textDelta: string;
-  imageDelta: string;
-  sheetDelta: string;
-  codeDelta: string;
-  suggestion: Suggestion;
-  appendMessage: string;
-  id: string;
-  title: string;
-  kind: ArtifactKind;
-  clear: null;
-  finish: null;
-  "chat-title": string;
-};
-
-export type ChatMessage = UIMessage<
-  MessageMetadata,
-  CustomUIDataTypes,
-  ChatTools
->;
+export type ChatMessage = UIMessage;
 
 export type Attachment = {
   name: string;

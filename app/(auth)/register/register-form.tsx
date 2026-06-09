@@ -1,7 +1,8 @@
 "use client";
 
 import { EyeIcon, EyeOffIcon, LockIcon, MailIcon, UserIcon } from "lucide-react";
-import { useActionState, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useActionState, useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { type RegisterActionState, register } from "../actions";
 
@@ -11,6 +12,13 @@ export function RegisterForm() {
     { status: "idle" }
   );
   const [showPassword, setShowPassword] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (state.status === "success") {
+      router.push("/");
+    }
+  }, [state.status, router]);
 
   return (
     <form action={formAction} className="mt-8 flex flex-col gap-5">

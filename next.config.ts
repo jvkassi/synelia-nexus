@@ -49,6 +49,8 @@ const nextConfig: NextConfig = {
     inlineCss: true,
     turbopackFileSystemCacheForDev: true,
   },
+    allowedDevOrigins: ['synelia-nexus-dev.technocify.fr'],
+
 };
 
 export default withBotId(nextConfig);
