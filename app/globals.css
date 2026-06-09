@@ -1,41 +1,72 @@
+/* Synelia Cowork — Webfonts (Google Fonts CDN). Must precede all
+ * non-@charset/@layer rules per CSS spec. */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Open+Sans:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap');
+
 @import "tailwindcss";
 @import "katex/dist/katex.min.css";
 
-@source "../node_modules/streamdown/dist/index.js";
+@source "../../node_modules/streamdown/dist/index.js";
+@source "../components/ai-elements/**/*.{ts,tsx}";
 
 @custom-variant dark (&:is(.dark, .dark *));
 
 @plugin "tailwindcss-animate";
 @plugin "@tailwindcss/typography";
 
+/* ---------------------------------------------------------------------------
+ * Synelia Cowork — design tokens
+ * Source of truth: /opt/data/synelia-nexus/DESIGN.md
+ * Do NOT add tokens here that aren't in DESIGN.md. To change a token, edit
+ * DESIGN.md first.
+ * --------------------------------------------------------------------------- */
+
 @theme inline {
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+  /* ----- Radii ----- */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
+  /* Tailwind expects --radius to be the base; keep it for compatibility */
+  --radius: var(--radius-md);
+
+  /* ----- Surfaces (white-led, violet undertone) ----- */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
   --color-popover: var(--popover);
   --color-popover-foreground: var(--popover-foreground);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
   --color-destructive: var(--destructive);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+
+  /* ----- Synelia brand (sRGB hex from DESIGN.md) ----- */
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-dark: var(--primary-dark);
+  --color-primary-mid: var(--primary-mid);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  /* ----- Kind chips (artifact types) ----- */
+  --color-kind-doc: var(--kind-doc);
+  --color-kind-tableur: var(--kind-tableur);
+  --color-kind-diagramme: var(--kind-diagramme);
+  --color-live-pill: var(--live-pill);
+
+  /* ----- Charts (kept neutral, won't actively use) ----- */
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
+
+  /* ----- Sidebar (primary-dark in this product) ----- */
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -44,50 +75,89 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+
+  /* ----- Fonts ----- */
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+  --font-mono: var(--font-mono);
+
+  /* ----- Shadows ----- */
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
 }
 
 :root {
-  --radius: 0.625rem;
-  --background: oklch(0.985 0 0);
-  --foreground: oklch(0.12 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.12 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.12 0 0);
-  --primary: oklch(0.12 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.965 0 0);
-  --secondary-foreground: oklch(0.38 0 0);
-  --muted: oklch(0.94 0 0);
-  --muted-foreground: oklch(0.58 0 0);
-  --accent: oklch(0.965 0 0);
-  --accent-foreground: oklch(0.12 0 0);
-  --destructive: oklch(0.55 0.15 25);
-  --border: oklch(0.9 0 0);
-  --input: oklch(0.9 0 0);
-  --ring: oklch(0.5 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.97 0 0);
-  --sidebar-foreground: oklch(0.38 0 0);
-  --sidebar-primary: oklch(0.12 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.12 0 0 / 0.06);
-  --sidebar-accent-foreground: oklch(0.12 0 0);
-  --sidebar-border: oklch(0.88 0 0);
-  --sidebar-ring: oklch(0.5 0 0);
+  /* Synelia palette (sRGB hex) */
+  --primary: #4B2882;            /* Synelia Violet — signature */
+  --primary-foreground: #FFFFFF;
+  --primary-dark: #2D1557;       /* Deep violet — sidebar, premium */
+  --primary-mid: #6B3FA0;        /* Mid violet — hover, active borders */
+  --accent: #C0297A;             /* Magenta — single accent */
+  --accent-foreground: #FFFFFF;
 
-  --shadow-card: 0 1px 3px oklch(0 0 0 / 0.05), 0 1px 1px oklch(0 0 0 / 0.03);
-  --shadow-float:
-    0 8px 24px -6px oklch(0 0 0 / 0.1), 0 2px 8px -2px oklch(0 0 0 / 0.04);
-  --shadow-composer: 0 1px 2px oklch(0 0 0 / 0.04);
-  --shadow-composer-focus:
-    0 0 0 1px oklch(0 0 0 / 0.06), 0 2px 8px -2px oklch(0 0 0 / 0.06);
-  --shadow-inset: inset 0 1px 1px oklch(0 0 0 / 0.03);
-  --shadow-glow: 0 0 20px oklch(0 0 0 / 0.08);
+  --background: #FFFFFF;
+  --foreground: #1C1C2E;
+  --card: #FFFFFF;
+  --card-foreground: #1C1C2E;
+  --popover: #FFFFFF;
+  --popover-foreground: #1C1C2E;
+  --secondary: #F5F4F8;
+  --secondary-foreground: #3D3550;
+  --muted: #F5F4F8;
+  --muted-foreground: #9A90A8;
+  --destructive: #E63946;
+  --border: #E0DCE8;
+  --input: #E0DCE8;
+  --ring: #6B3FA0;
+
+  /* Semantic state colors */
+  --success: #00C48C;
+  --warning: #FF6B35;
+  --info: #00AEEF;
+  --text-sub: #3D3550;
+  --text-muted: #9A90A8;
+
+  /* Kind chip colors (1:1 with artifact types) */
+  --kind-doc: #4B2882;            /* violet */
+  --kind-tableur: #00C48C;        /* emerald */
+  --kind-diagramme: #00AEEF;     /* cyan */
+  --live-pill: #C0297A;           /* = accent */
+
+  /* Sidebar (primary-dark chassis) */
+  --sidebar: #2D1557;
+  --sidebar-foreground: #FFFFFF;
+  --sidebar-primary: #4B2882;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #4B2882;
+  --sidebar-accent-foreground: #FFFFFF;
+  --sidebar-border: #4B2882;
+  --sidebar-ring: #6B3FA0;
+
+  /* Charts (defaults; product doesn't use these actively) */
+  --chart-1: #4B2882;
+  --chart-2: #00C48C;
+  --chart-3: #00AEEF;
+  --chart-4: #C0297A;
+  --chart-5: #FF6B35;
+
+  /* Fonts */
+  --font-display: 'Montserrat', system-ui, sans-serif;
+  --font-body: 'Open Sans', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  /* Shadows (violet-tinted) */
+  --shadow-sm: 0 1px 3px rgba(45, 21, 87, 0.08);
+  --shadow-md: 0 4px 12px rgba(45, 21, 87, 0.12);
+  --shadow-lg: 0 8px 32px rgba(45, 21, 87, 0.16);
+
+  /* Compatibility helpers (shadcn/neutral expects these) */
+  --shadow-card: var(--shadow-sm);
+  --shadow-float: var(--shadow-md);
+  --shadow-composer: var(--shadow-sm);
+  --shadow-composer-focus: var(--shadow-md);
+  --shadow-inset: inset 0 1px 1px rgba(45, 21, 87, 0.06);
+  --shadow-glow: 0 0 20px rgba(75, 40, 130, 0.12);
 
   --ease-spring: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -95,49 +165,24 @@
 }
 
 .dark {
-  --background: oklch(0.195 0 0);
-  --foreground: oklch(0.94 0 0);
-  --card: oklch(0.225 0 0);
-  --card-foreground: oklch(0.94 0 0);
-  --popover: oklch(0.225 0 0);
-  --popover-foreground: oklch(0.94 0 0);
-  --primary: oklch(0.94 0 0);
-  --primary-foreground: oklch(0.195 0 0);
-  --secondary: oklch(0.26 0 0);
-  --secondary-foreground: oklch(0.75 0 0);
-  --muted: oklch(0.165 0 0);
-  --muted-foreground: oklch(0.6 0 0);
-  --accent: oklch(0.26 0 0);
-  --accent-foreground: oklch(0.94 0 0);
-  --destructive: oklch(0.7 0.15 25);
-  --border: oklch(0.27 0 0);
-  --input: oklch(0.27 0 0);
-  --ring: oklch(0.45 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.175 0 0);
-  --sidebar-foreground: oklch(0.78 0 0);
-  --sidebar-primary: oklch(0.94 0 0);
-  --sidebar-primary-foreground: oklch(0.195 0 0);
-  --sidebar-accent: oklch(0.94 0 0 / 0.06);
-  --sidebar-accent-foreground: oklch(0.94 0 0);
-  --sidebar-border: oklch(0.25 0 0);
-  --sidebar-ring: oklch(0.45 0 0);
-
-  --shadow-card:
-    inset 0 1px 0 oklch(1 0 0 / 0.04), 0 1px 2px oklch(0 0 0 / 0.2),
-    0 0.5px 1px oklch(0 0 0 / 0.15);
-  --shadow-float:
-    0 0 0 1px oklch(1 0 0 / 0.06), 0 16px 48px -6px oklch(0 0 0 / 0.35),
-    0 6px 12px -2px oklch(0 0 0 / 0.2);
-  --shadow-composer:
-    0 1px 3px oklch(0 0 0 / 0.2), inset 0 1px 0 oklch(1 0 0 / 0.03);
-  --shadow-composer-focus:
-    0 0 0 1px oklch(1 0 0 / 0.1), 0 4px 16px -4px oklch(0 0 0 / 0.3),
-    inset 0 1px 0 oklch(1 0 0 / 0.04);
+  --background: #1C1C2E;
+  --foreground: #F5F4F8;
+  --card: #2D1557;
+  --card-foreground: #F5F4F8;
+  --popover: #2D1557;
+  --popover-foreground: #F5F4F8;
+  --primary: #6B3FA0;
+  --primary-foreground: #FFFFFF;
+  --secondary: #4B2882;
+  --secondary-foreground: #F5F4F8;
+  --muted: #4B2882;
+  --muted-foreground: #9A90A8;
+  --accent: #C0297A;
+  --accent-foreground: #FFFFFF;
+  --destructive: #E63946;
+  --border: #4B2882;
+  --input: #4B2882;
+  --ring: #6B3FA0;
 }
 
 @layer base {
@@ -146,7 +191,7 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-feature-settings: "ss01", "ss02", "cv01";
+    font-family: var(--font-body);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
@@ -173,15 +218,16 @@
     overflow-x: hidden;
   }
 
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    letter-spacing: -0.025em;
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    color: var(--primary);
+    letter-spacing: -0.02em;
     line-height: 1.2;
   }
+
+  h1 { font-size: 2.25rem; font-weight: 700; }
+  h2 { font-size: 1.625rem; font-weight: 700; letter-spacing: -0.015em; }
+  h3 { font-size: 1.25rem; font-weight: 600; }
 
   p {
     line-height: 1.6;
@@ -193,153 +239,281 @@ select:focus-visible,
 [role="button"]:focus-visible,
 input:focus-visible,
 textarea:focus-visible {
+  outline: 2px solid var(--primary-mid);
+  outline-offset: 2px;
+}
+
+/* ---------------------------------------------------------------------------
+ * Synelia — signature components
+ * --------------------------------------------------------------------------- */
+
+/* The 56×3 px magenta rule under every H1, H2, and section title. */
+.synelia-rule {
+  width: 56px;
+  height: 3px;
+  background: var(--accent);
+  border-radius: var(--radius-sm);
+  margin: 16px 0;
+  border: none;
+  display: block;
+}
+
+/* Eyebrow: small uppercase tracked label, used for "CONNEXION", "DIRECTION DATA & IA" */
+.synelia-eyebrow {
+  font-family: var(--font-body);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+/* Buttons — primary / ghost, no fourth style */
+.synelia-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-family: var(--font-display);
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  padding: 10px 16px;
+  border-radius: var(--radius-md);
+  transition: background 150ms var(--ease-smooth), color 150ms var(--ease-smooth);
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+.synelia-btn-primary {
+  background: var(--primary);
+  color: #fff;
+}
+.synelia-btn-primary:hover {
+  background: var(--primary-mid);
+}
+.synelia-btn-ghost {
+  background: #fff;
+  color: var(--primary);
+}
+.synelia-btn-ghost:hover {
+  background: var(--secondary);
+}
+
+/* Input field — single shape for text + password + textarea */
+.synelia-input {
+  width: 100%;
+  background: #fff;
+  color: var(--foreground);
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  padding: 10px 12px 10px 40px;       /* left padding for the leading icon */
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
   outline: none;
+  transition: border-color 150ms var(--ease-smooth);
+}
+.synelia-input:focus {
+  border-color: var(--primary-mid);
+  outline: 2px solid var(--primary-mid);
+  outline-offset: 0;
+}
+.synelia-input::placeholder {
+  color: var(--text-muted);
+}
+.synelia-input--no-icon {
+  padding-left: 12px;
 }
 
-@utility text-balance {
-  text-wrap: balance;
+.synelia-input-wrapper {
+  position: relative;
+  width: 100%;
+}
+.synelia-input-wrapper > .synelia-input-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+}
+.synelia-input-wrapper > .synelia-input-icon--right {
+  left: auto;
+  right: 12px;
+  pointer-events: auto;
+  cursor: pointer;
 }
 
-@utility -webkit-overflow-scrolling-touch {
-  -webkit-overflow-scrolling: touch;
+/* Label — used above every input */
+.synelia-label {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--foreground);
+  margin-bottom: 6px;
 }
 
-@utility touch-pan-y {
-  touch-action: pan-y;
+/* Kind chip — used on artifact cards + artifact modal */
+.synelia-kind-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-body);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+}
+.synelia-kind-chip--doc { background: var(--kind-doc); color: #fff; }
+.synelia-kind-chip--tableur { background: var(--kind-tableur); color: var(--primary-dark); }
+.synelia-kind-chip--diagramme { background: var(--kind-diagramme); color: var(--primary-dark); }
+
+/* Live pill — the "AI is generating" indicator on artifacts */
+.synelia-live-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-body);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  background: var(--live-pill);
+  color: #fff;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+}
+.synelia-live-pill::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #fff;
+  animation: dot-pulse 1.4s ease-in-out infinite;
 }
 
-@utility overscroll-behavior-contain {
-  overscroll-behavior: contain;
+/* Project icon tile — the 56px colored square with a white Lucide icon */
+.synelia-project-tile {
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  color: #fff;
+  flex-shrink: 0;
 }
 
-@utility no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-  &::-webkit-scrollbar {
-    display: none;
-  }
+/* Avatar stack — 32px round avatars, 10px overlap */
+.synelia-avatar-stack {
+  display: inline-flex;
+  align-items: center;
+}
+.synelia-avatar-stack > * {
+  margin-left: -10px;
+  border: 2px solid var(--background);
+  border-radius: 50%;
+}
+.synelia-avatar-stack > *:first-child {
+  margin-left: 0;
+}
+.synelia-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
 }
 
-@layer utilities {
-  :root {
-    --foreground-rgb: 0, 0, 0;
-    --background-start-rgb: 214, 219, 220;
-    --background-end-rgb: 255, 255, 255;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --foreground-rgb: 255, 255, 255;
-      --background-start-rgb: 0, 0, 0;
-      --background-end-rgb: 0, 0, 0;
-    }
-  }
+/* Visibility badge (pill: Privé / Public) */
+.synelia-visibility {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-body);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  background: var(--secondary);
+  color: var(--text-sub);
+  padding: 6px 12px;
+  border-radius: var(--radius-pill);
+  border: none;
+  cursor: pointer;
 }
 
-.skeleton {
-  * {
-    pointer-events: none !important;
-  }
-
-  *[class^="text-"] {
-    color: transparent;
-    @apply rounded-md bg-foreground/20 select-none animate-pulse;
-  }
-
-  .skeleton-bg {
-    @apply bg-foreground/10;
-  }
-
-  .skeleton-div {
-    @apply bg-foreground/20 animate-pulse;
-  }
+/* Pulsing green dot — "live" indicator on a project row */
+.synelia-live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--success);
+  display: inline-block;
+  animation: dot-pulse 1.4s ease-in-out infinite;
 }
+
+/* Pulsing magenta dot — used on login left panel */
+.synelia-pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  display: inline-block;
+  animation: dot-pulse 1.4s ease-in-out infinite;
+}
+
+/* ---------------------------------------------------------------------------
+ * Keyframes
+ * --------------------------------------------------------------------------- */
 
 @keyframes fade-up {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @keyframes shimmer {
-  0% {
-    background-position: -200% 0;
-  }
-  100% {
-    background-position: 200% 0;
-  }
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
 }
 
 @keyframes dot-pulse {
-  0%,
-  60%,
-  100% {
-    opacity: 0.3;
-    transform: translateY(0);
-  }
-  30% {
-    opacity: 1;
-    transform: translateY(-3px);
-  }
+  0%, 60%, 100% { opacity: 0.3; transform: translateY(0); }
+  30% { opacity: 1; transform: translateY(-3px); }
 }
 
 @keyframes message-in {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes thinking-dot {
-  0%,
-  60%,
-  100% {
-    opacity: 0.3;
-    transform: translateY(0);
-  }
-  30% {
-    opacity: 1;
-    transform: translateY(-3px);
-  }
+  0%, 60%, 100% { opacity: 0.3; transform: translateY(0); }
+  30% { opacity: 1; transform: translateY(-3px); }
 }
 
 @keyframes glow-pulse {
-  0%,
-  100% {
-    box-shadow: 0 0 0 0 oklch(0.55 0.12 250 / 0%);
-  }
-  50% {
-    box-shadow: 0 0 0 3px oklch(0.55 0.12 250 / 8%);
-  }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(192, 41, 122, 0%); }
+  50% { box-shadow: 0 0 0 3px rgba(192, 41, 122, 8%); }
 }
 
 @keyframes subtle-lift {
-  from {
-    transform: translateY(0);
-    box-shadow: var(--shadow-card);
-  }
-  to {
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-float);
-  }
+  from { transform: translateY(0); box-shadow: var(--shadow-sm); }
+  to { transform: translateY(-1px); box-shadow: var(--shadow-md); }
 }
 
 @utility fade-up {
@@ -352,12 +526,7 @@ textarea:focus-visible {
 
 @utility shimmer {
   animation: shimmer 2s linear infinite;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    oklch(1 0 0 / 0.04),
-    transparent
-  );
+  background: linear-gradient(90deg, transparent, rgba(75, 40, 130, 0.04), transparent);
   background-size: 200% 100%;
 }
 
@@ -377,9 +546,33 @@ textarea:focus-visible {
   animation: glow-pulse 2s ease-in-out infinite;
 }
 
-.ProseMirror {
-  outline: none;
+@utility text-balance {
+  text-wrap: balance;
 }
+
+@utility no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+}
+
+@utility overscroll-behavior-contain {
+  overscroll-behavior: contain;
+}
+
+@utility touch-pan-y {
+  touch-action: pan-y;
+}
+
+@utility -webkit-overflow-scrolling-touch {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ---------------------------------------------------------------------------
+ * CodeMirror (in-chat editor) — keep existing overrides
+ * --------------------------------------------------------------------------- */
+
+.ProseMirror { outline: none; }
 
 .cm-editor {
   @apply bg-transparent! outline-hidden! text-[13px]! leading-[1.6]!;
@@ -403,17 +596,17 @@ textarea:focus-visible {
 .ͼo.cm-focused > .cm-scroller > .cm-selectionLayer .cm-selectionBackground,
 .ͼo.cm-selectionBackground,
 .ͼo.cm-content::selection {
-  background: oklch(0.55 0.12 250 / 0.15) !important;
+  background: rgba(75, 40, 130, 0.15) !important;
 }
 
 .dark
   .ͼo.cm-focused
   > .cm-scroller
   > .cm-selectionLayer
-  .cm-selectionBackground,
+  > .cm-selectionBackground,
 .dark .ͼo.cm-selectionBackground,
 .dark .ͼo.cm-content::selection {
-  background: oklch(0.55 0.12 250 / 0.2) !important;
+  background: rgba(192, 41, 122, 0.2) !important;
 }
 
 .cm-activeLine {
@@ -438,13 +631,13 @@ textarea:focus-visible {
 }
 
 .cm-cursor {
-  border-left-color: oklch(0.55 0.12 250) !important;
+  border-left-color: var(--accent) !important;
   border-left-width: 2px !important;
 }
 
 .cm-matchingBracket {
-  background: oklch(0.55 0.12 250 / 0.12) !important;
-  outline: 1px solid oklch(0.55 0.12 250 / 0.3);
+  background: rgba(75, 40, 130, 0.12) !important;
+  outline: 1px solid rgba(75, 40, 130, 0.3);
   border-radius: 2px;
 }
 
@@ -454,19 +647,23 @@ textarea:focus-visible {
   -webkit-user-select: none;
 }
 
+/* ---------------------------------------------------------------------------
+ * Scrollbars
+ * --------------------------------------------------------------------------- */
+
 @layer base {
   * {
     scrollbar-width: thin;
-    scrollbar-color: oklch(0 0 0 / 0.12) transparent;
+    scrollbar-color: rgba(75, 40, 130, 0.18) transparent;
   }
 
   .dark * {
-    scrollbar-color: oklch(1 0 0 / 0.1) transparent;
+    scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
   }
 
   *::-webkit-scrollbar {
-    width: 4px;
-    height: 4px;
+    width: 6px;
+    height: 6px;
   }
 
   *::-webkit-scrollbar-track {
@@ -474,20 +671,20 @@ textarea:focus-visible {
   }
 
   *::-webkit-scrollbar-thumb {
-    background: oklch(0 0 0 / 0.12);
+    background: rgba(75, 40, 130, 0.18);
     border-radius: 9999px;
   }
 
   *::-webkit-scrollbar-thumb:hover {
-    background: oklch(0 0 0 / 0.25);
+    background: rgba(75, 40, 130, 0.32);
   }
 
   .dark *::-webkit-scrollbar-thumb {
-    background: oklch(1 0 0 / 0.1);
+    background: rgba(255, 255, 255, 0.12);
   }
 
   .dark *::-webkit-scrollbar-thumb:hover {
-    background: oklch(1 0 0 / 0.2);
+    background: rgba(255, 255, 255, 0.24);
   }
 
   *::-webkit-scrollbar-corner {
