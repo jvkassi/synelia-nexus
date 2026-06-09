@@ -81,8 +81,89 @@ export const SYN: SyneliaData = {
   THREAD_SYNTHESE: [],
   LIVE_AI_REPLY: "",
   RISK_ROWS: [],
-  PROMPT_CATS: [],
-  PROMPTS: [],
+  PROMPT_CATS: [
+{ id: "all",    label: "Tous",                icon: "library" },
+  { id: "audit",  label: "Audit & Conseil",     icon: "clipboard-check" },
+  { id: "cyber",  label: "Cybersécurité",       icon: "shield-check" },
+  { id: "cloud",  label: "Cloud & Infra",       icon: "cloud" },
+  { id: "data",   label: "Data & IA",           icon: "brain-circuit" },
+  { id: "projet", label: "Gestion de projet",   icon: "kanban-square" },
+  { id: "redac",  label: "Rédaction & Synthèse",icon: "pen-line" },
+] as SyneliaData['PROMPT_CATS'],
+  PROMPTS: [
+{
+    id: "p-matrice", title: "Matrice de risques d'audit", cat: "audit", icon: "layout-grid",
+    author: "kofi", uses: 34, pinned: true, official: true,
+    desc: "Consolide des constats d'audit en une matrice probabilité × impact, cotée et priorisée.",
+    body: "À partir des constats d'audit fournis, construis une matrice de risques (probabilité × impact). Pour chaque constat : un intitulé, une cotation sur 4 niveaux (Faible, Modéré, Élevé, Critique), un propriétaire désigné et une recommandation de remédiation. Trie par criticité décroissante et mets en tête les constats critiques à porter au COPIL.",
+  },
+  {
+    id: "p-remediation", title: "Plan de remédiation en vagues", cat: "audit", icon: "list-checks",
+    author: "awa", uses: 21, official: true,
+    desc: "Génère un plan de remédiation priorisé en 3 vagues avec estimation de charge.",
+    body: "Génère un plan de remédiation priorisé en 3 vagues (quick wins, structurant, fond) à partir des constats. Pour chaque action : objectif, prérequis, estimation de charge en jours-homme, propriétaire et indicateur de suivi. Présente le tout sous forme de tableau et ajoute une synthèse des dépendances entre vagues.",
+  },
+  {
+    id: "p-entretien", title: "Trame d'entretien DSI", cat: "audit", icon: "messages-square",
+    author: "fatou", uses: 18,
+    desc: "Prépare un guide d'entretien structuré pour les responsables d'application.",
+    body: "Prépare une trame d'entretien de 15 questions pour les responsables d'application, regroupées en 3 volets : cartographie applicative, interfaces et flux de données, plans de continuité. Pour chaque question, indique l'objectif et un exemple de réponse attendue. Adapte le ton au contexte d'un audit SI bancaire.",
+  },
+  {
+    id: "p-pcidss", title: "Analyse d'écarts PCI-DSS v4", cat: "cyber", icon: "shield-alert",
+    author: "kofi", uses: 27, official: true,
+    desc: "Liste les écarts vis-à-vis du référentiel PCI-DSS v4 et les exigences associées.",
+    body: "Analyse les écarts de conformité vis-à-vis du référentiel PCI-DSS v4. Pour chaque exigence non couverte : numéro de l'exigence, description de l'écart, niveau de sévérité, preuve attendue et action corrective recommandée. Conclus par un taux de conformité global et les 5 priorités absolues.",
+  },
+  {
+    id: "p-veille", title: "Veille cybersécurité hebdomadaire", cat: "cyber", icon: "radar",
+    author: "kofi", uses: 41, pinned: true,
+    desc: "Synthèse hebdo des menaces, vulnérabilités et recommandations pour l'équipe.",
+    body: "Rédige une synthèse de veille cybersécurité de la semaine pour l'équipe : 5 menaces ou vulnérabilités majeures (avec score CVSS si disponible), leur impact potentiel sur nos clients du secteur bancaire et public, et une recommandation d'action concrète pour chacune. Termine par une note de priorisation.",
+  },
+  {
+    id: "p-soc", title: "Plan de durcissement SOC", cat: "cyber", icon: "lock",
+    author: "ibrahim", uses: 12,
+    desc: "Recommandations de durcissement d'une infrastructure d'identité et de détection.",
+    body: "Propose un plan de durcissement pour notre SOC et l'infrastructure d'identité associée : gestion des comptes à privilèges, segmentation réseau, journalisation et détection, sauvegarde et PRA. Structure en 3 horizons (immédiat, 90 jours, 6 mois) avec, pour chaque mesure, l'effort estimé et le risque couvert.",
+  },
+  {
+    id: "p-trajectoire", title: "Trajectoire de migration cloud", cat: "cloud", icon: "cloud-cog",
+    author: "yao", uses: 23, official: true,
+    desc: "Construit une trajectoire de migration vers le cloud souverain par vagues d'applications.",
+    body: "Construis une trajectoire de migration vers le cloud souverain à partir de l'inventaire applicatif. Classe les applications selon la stratégie 6R (rehost, replatform, refactor, repurchase, retain, retire), regroupe-les en vagues de migration et indique pour chaque vague les prérequis, les risques et les bénéfices attendus.",
+  },
+  {
+    id: "p-archi", title: "Schéma d'architecture cible", cat: "cloud", icon: "git-fork",
+    author: "yao", uses: 16,
+    desc: "Décris une architecture applicative cible en couches, avec flux et composants.",
+    body: "Décris l'architecture applicative cible en couches (présentation, services, données, intégration, sécurité). Pour chaque couche : composants clés, technologies recommandées, flux d'échange et points d'attention sécurité. Propose ensuite une représentation textuelle du schéma que je pourrai transformer en diagramme.",
+  },
+  {
+    id: "p-eda", title: "Analyse exploratoire d'un jeu de données", cat: "data", icon: "bar-chart-3",
+    author: "fatou", uses: 29, official: true,
+    desc: "Cadre une analyse exploratoire : qualité, distributions, corrélations, pistes.",
+    body: "À partir du jeu de données fourni, mène une analyse exploratoire : qualité et complétude des données, distributions des variables clés, corrélations notables, valeurs aberrantes. Conclus par 3 à 5 hypothèses ou pistes d'analyse à creuser, et les transformations de données nécessaires avant modélisation.",
+  },
+  {
+    id: "p-parcours", title: "Parcours de formation Data Engineering", cat: "data", icon: "graduation-cap",
+    author: "mariam", uses: 14,
+    desc: "Conçoit un parcours de formation modulaire avec objectifs et évaluations.",
+    body: "Conçois un parcours de formation « Data Engineering » de 8 modules pour l'Open Digital Academy. Pour chaque module : objectifs pédagogiques, prérequis, durée, compétences visées et modalité d'évaluation. Termine par une grille d'évaluation des candidats à l'entrée et un projet fil rouge.",
+  },
+  {
+    id: "p-copil", title: "Note de synthèse pour COPIL", cat: "redac", icon: "file-text",
+    author: "awa", uses: 38, pinned: true, official: true,
+    desc: "Rédige une note de synthèse exécutive prête à présenter en comité de pilotage.",
+    body: "Rédige une note de synthèse exécutive pour le COPIL à partir des éléments du projet : contexte en 3 lignes, avancement, 3 points saillants, risques et arbitrages attendus, et décisions à valider. Ton sobre et institutionnel, vouvoiement, maximum une page. Termine par les prochaines étapes datées.",
+  },
+  {
+    id: "p-devis", title: "Cadrage budgétaire sur 18 mois", cat: "projet", icon: "calculator",
+    author: "mariam", uses: 19,
+    desc: "Estime un budget de mise en conformité réparti par poste et par trimestre.",
+    body: "Estime le budget de mise en conformité sur 18 mois. Répartis les coûts par poste (RH internes, prestations, licences, infrastructure) et par trimestre. Distingue investissement et fonctionnement, ajoute une marge d'incertitude et propose 2 scénarios : ambitieux et prudent. Présente sous forme de tableau récapitulatif.",
+  },
+] as SyneliaData['PROMPTS'],
 };
 
 // ===== Compat API for the prior session's call sites =====

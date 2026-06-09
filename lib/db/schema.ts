@@ -1,6 +1,5 @@
 import type { InferSelectModel } from "drizzle-orm";
 import {
-  foreignKey,
   index,
   integer,
   primaryKey,
@@ -13,13 +12,12 @@ import {
 const uuid = () => crypto.randomUUID();
 
 /* ============================================================
-   Synelia Cowork schema — multi-user AI workspace
+   Synelia Cowork — multi-user AI workspace schema (sole source)
    ============================================================
-   This is the production schema for the Cowork UI. The Vercel-fork
-   tables below (User, Chat_v2, Message_v2, Document, Vote_v2,
-   Suggestion, Stream) are kept for back-compat with lib/db/queries.ts
-   and the auth flow; they will be removed once the Cowork UI fully
-   replaces the legacy Vercel chat.
+   Replaces the Vercel-fork Chat/Message/Document/Vote/Suggestion/Stream
+   tables. The only legacy table kept is `user` (because the NextAuth
+   flow in app/(auth) needs it). Every Cowork table hangs off the
+   workspace: thread, message, artifact, routine, prompt, scheduled task.
    ============================================================ */
 
 // ===== Identity =====
@@ -54,11 +52,9 @@ export const user = sqliteTable("User", {
 
 export type User = InferSelectModel<typeof user>;
 
-// ===== Synelia Cowork: Workspaces, Members, Threads, Messages =====
+// ===== Workspaces, Members, Threads, Messages =====
 
-/** A workspace is a shared team space (e.g. "Direction Data & IA").
- *  In the current handoff the app assumes ONE workspace per user, but
- *  the schema is multi-workspace so teams can isolate client projects. */
+/** A workspace is a shared team space (e.g. "Direction Data & IA"). */
 export const workspace = sqliteTable(
   "Workspace",
   {
@@ -109,7 +105,7 @@ export const thread = sqliteTable(
     id: text("id").primaryKey().notNull().$defaultFn(uuid),
     workspaceId: text("workspaceId").notNull().references(() => workspace.id),
     title: text("title").notNull(),
-    /** Lucide icon for the thread (matches the chat's purpose). */
+    /** Lucide icon for the thread. */
     icon: text("icon"),
     /** Free-form preview shown in the chat list. */
     preview: text("preview"),
@@ -149,22 +145,24 @@ export type ThreadParticipant = InferSelectModel<typeof threadParticipant>;
 
 /** A message in a thread. AI SDK v6 `parts` (JSON) and `attachments` (JSON). */
 export const message = sqliteTable(
-  "Message_v2",
+  "Message",
   {
     id: text("id").primaryKey().notNull().$defaultFn(uuid),
     threadId: text("threadId").notNull().references(() => thread.id),
-    /** The user who authored the message (assistant msgs have the triggering userId too). */
+    /** The user who authored the message. */
     userId: text("userId").notNull().references(() => user.id),
     /** "user" | "assistant" | "system". */
     role: text("role", { enum: ["user", "assistant", "system"] }).notNull(),
-    /** Plain markdown for display (denormalized from parts[].text for fast read). */
+    /** Plain markdown for display. */
     text: text("text").notNull(),
-    /** Free-form "10:02", "10:05" — when the message was sent. */
+    /** Free-form "10:02", "10:05". */
     at: text("at").notNull(),
     /** AI SDK v6 parts as JSON — used for streaming re-render. */
     parts: text("parts", { mode: "json" }).notNull().$type<unknown[]>(),
     /** Attachments (file name + icon). */
-    attachments: text("attachments", { mode: "json" }).notNull().$type<{ name: string; icon: string }[]>().default([]),
+    attachments: text("attachments", { mode: "json" }).notNull()
+      .$type<{ name: string; icon: string }[]>()
+      .default([]),
     /** Flag: this message was the user steering the AI mid-stream. */
     isSteer: integer("isSteer", { mode: "boolean" }).notNull().default(false),
     /** Flag: this message was interrupted (the AI was cut off by a steer). */
@@ -178,12 +176,9 @@ export const message = sqliteTable(
 
 export type DBMessage = InferSelectModel<typeof message>;
 
-/* ============================================================
-   Synelia Cowork: Artifacts, Routines, Prompts
-   ============================================================ */
+// ===== Artifacts, Routines, Prompts =====
 
-/** An artifact produced by the AI inside a thread. Shown in the project's
- *  Artefacts tab, the global Artefacts gallery, and the in-chat viewer. */
+/** An artifact produced by the AI inside a thread. */
 export const artifact = sqliteTable(
   "Artifact",
   {
@@ -215,7 +210,7 @@ export const artifact = sqliteTable(
 
 export type Artifact = InferSelectModel<typeof artifact>;
 
-/** A routine = a recurring task the AI runs on a cadence (the r1..r6 in the mock). */
+/** A routine = a recurring task the AI runs on a cadence. */
 export const routine = sqliteTable(
   "Routine",
   {
@@ -243,7 +238,7 @@ export const routine = sqliteTable(
 
 export type Routine = InferSelectModel<typeof routine>;
 
-/** A single execution of a routine (the r1.runs[] in the mock). */
+/** A single execution of a routine. */
 export const routineRun = sqliteTable(
   "RoutineRun",
   {
@@ -254,7 +249,7 @@ export const routineRun = sqliteTable(
     date: text("date").notNull(),
     /** Free-form duration label, e.g. "8,4 s". */
     ranFor: text("ranFor").notNull(),
-    /** Thought seconds (for the master-detail "Réflexion · N s" label). */
+    /** Thought seconds. */
     thought: integer("thought").notNull().default(0),
     /** The markdown output of the run. */
     output: text("output").notNull(),
@@ -267,13 +262,11 @@ export const routineRun = sqliteTable(
 
 export type RoutineRun = InferSelectModel<typeof routineRun>;
 
-/** The department-wide prompt library (12 prompts in 6 categories in the mock). */
+/** Department-wide prompt library categories. */
 export const promptCategory = sqliteTable("PromptCategory", {
   id: text("id").primaryKey(),
   label: text("label").notNull(),
-  /** Lucide icon. */
   icon: text("icon").notNull().default("library"),
-  /** Hex color used for the category chip. */
   color: text("color"),
 });
 
@@ -286,15 +279,12 @@ export const prompt = sqliteTable(
     id: text("id").primaryKey(),
     title: text("title").notNull(),
     categoryId: text("categoryId").notNull().references(() => promptCategory.id),
-    /** Lucide icon. */
     icon: text("icon").notNull().default("library"),
     authorId: text("authorId").notNull().references(() => user.id),
     uses: integer("uses").notNull().default(0),
     pinned: integer("pinned", { mode: "boolean" }).notNull().default(false),
     official: integer("official", { mode: "boolean" }).notNull().default(false),
-    /** Short description. */
     desc: text("desc").notNull(),
-    /** The full prompt body. */
     body: text("body").notNull(),
     createdAt: integer("createdAt", { mode: "timestamp_ms" }).notNull().$defaultFn(() => new Date()),
   },
@@ -305,12 +295,9 @@ export const prompt = sqliteTable(
 
 export type Prompt = InferSelectModel<typeof prompt>;
 
-/* ============================================================
-   Synelia Cowork: Scheduled tasks (worker, Redis ZSET in prod)
-   ============================================================ */
+// ===== Scheduled tasks =====
 
-/** A scheduled task. The worker polls this table (or a Redis ZSET in
- *  production) and runs the prompt at `runAt`. */
+/** A scheduled task. The worker polls this table and runs the prompt at `runAt`. */
 export const scheduledTask = sqliteTable(
   "ScheduledTask",
   {
@@ -318,16 +305,11 @@ export const scheduledTask = sqliteTable(
     workspaceId: text("workspaceId").notNull().references(() => workspace.id),
     threadId: text("threadId").references(() => thread.id),
     routineId: text("routineId").references(() => routine.id),
-    /** The user who scheduled the task. */
     scheduledById: text("scheduledById").notNull().references(() => user.id),
-    /** The prompt body to run. */
     prompt: text("prompt").notNull(),
-    /** When the task should run. */
     runAt: integer("runAt", { mode: "timestamp_ms" }).notNull(),
     status: text("status", { enum: ["pending", "running", "done", "failed", "cancelled"] }).notNull().default("pending"),
-    /** The assistant message created when the task ran (links to Message_v2). */
     resultMessageId: text("resultMessageId").references(() => message.id),
-    /** Optional error message. */
     error: text("error"),
     createdAt: integer("createdAt", { mode: "timestamp_ms" }).notNull().$defaultFn(() => new Date()),
   },
@@ -337,77 +319,3 @@ export const scheduledTask = sqliteTable(
 );
 
 export type ScheduledTask = InferSelectModel<typeof scheduledTask>;
-
-/* ============================================================
-   Legacy Vercel-fork tables (kept for queries.ts back-compat)
-   ============================================================ */
-
-export const chat = sqliteTable("Chat", {
-  id: text("id").primaryKey().notNull().$defaultFn(uuid),
-  createdAt: integer("createdAt", { mode: "timestamp_ms" }).notNull(),
-  title: text("title").notNull(),
-  userId: text("userId").notNull().references(() => user.id),
-  visibility: text("visibility", { enum: ["public", "private"] }).notNull().default("private"),
-});
-
-export const vote = sqliteTable(
-  "Vote_v2",
-  {
-    chatId: text("chatId").notNull().references(() => chat.id),
-    messageId: text("messageId").notNull().references(() => message.id),
-    isUpvoted: integer("isUpvoted", { mode: "boolean" }).notNull(),
-  },
-  (table) => ({
-    pk: primaryKey({ columns: [table.chatId, table.messageId] }),
-  }),
-);
-
-export const document = sqliteTable(
-  "Document",
-  {
-    id: text("id").notNull().$defaultFn(uuid),
-    createdAt: integer("createdAt", { mode: "timestamp_ms" }).notNull(),
-    title: text("title").notNull(),
-    content: text("content"),
-    kind: text("text", { enum: ["text", "code", "image", "sheet"] }).notNull().default("text"),
-    userId: text("userId").notNull().references(() => user.id),
-  },
-  (table) => ({
-    pk: primaryKey({ columns: [table.id, table.createdAt] }),
-  }),
-);
-
-export const suggestion = sqliteTable(
-  "Suggestion",
-  {
-    id: text("id").notNull().$defaultFn(uuid),
-    documentId: text("documentId").notNull(),
-    documentCreatedAt: integer("documentCreatedAt", { mode: "timestamp_ms" }).notNull(),
-    originalText: text("originalText").notNull(),
-    suggestedText: text("suggestedText").notNull(),
-    description: text("description"),
-    isResolved: integer("isResolved", { mode: "boolean" }).notNull().default(false),
-    userId: text("userId").notNull().references(() => user.id),
-    createdAt: integer("createdAt", { mode: "timestamp_ms" }).notNull(),
-  },
-  (table) => ({
-    pk: primaryKey({ columns: [table.id] }),
-    documentRef: foreignKey({
-      columns: [table.documentId, table.documentCreatedAt],
-      foreignColumns: [document.id, document.createdAt],
-    }),
-  }),
-);
-
-export const stream = sqliteTable(
-  "Stream",
-  {
-    id: text("id").notNull().$defaultFn(uuid),
-    chatId: text("chatId").notNull(),
-    createdAt: integer("createdAt", { mode: "timestamp_ms" }).notNull(),
-  },
-  (table) => ({
-    pk: primaryKey({ columns: [table.id] }),
-    chatRef: foreignKey({ columns: [table.chatId], foreignColumns: [chat.id] }),
-  }),
-);

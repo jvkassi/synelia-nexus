@@ -1,11 +1,11 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "a64539c7-19b9-42f9-819d-e5a20875dd00",
+  "id": "f4b60ec5-2d64-4f0a-82cf-dbb567a22119",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
-    "Chat": {
-      "name": "Chat",
+    "Artifact": {
+      "name": "Artifact",
       "columns": {
         "id": {
           "name": "id",
@@ -14,9 +14,23 @@
           "notNull": true,
           "autoincrement": false
         },
-        "createdAt": {
-          "name": "createdAt",
-          "type": "integer",
+        "workspaceId": {
+          "name": "workspaceId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "threadId": {
+          "name": "threadId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "createdById": {
+          "name": "createdById",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -28,30 +42,111 @@
           "notNull": true,
           "autoincrement": false
         },
-        "userId": {
-          "name": "userId",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "visibility": {
-          "name": "visibility",
+        "kind": {
+          "name": "kind",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
-          "default": "'private'"
+          "default": "'Document'"
+        },
+        "icon": {
+          "name": "icon",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'file-text'"
+        },
+        "content": {
+          "name": "content",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "''"
+        },
+        "when": {
+          "name": "when",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'maintenant'"
+        },
+        "live": {
+          "name": "live",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
+        },
+        "shared": {
+          "name": "shared",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
+        },
+        "publicSlug": {
+          "name": "publicSlug",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
         }
       },
-      "indexes": {},
+      "indexes": {
+        "Artifact_workspace_idx": {
+          "name": "Artifact_workspace_idx",
+          "columns": [
+            "workspaceId"
+          ],
+          "isUnique": false
+        }
+      },
       "foreignKeys": {
-        "Chat_userId_User_id_fk": {
-          "name": "Chat_userId_User_id_fk",
-          "tableFrom": "Chat",
+        "Artifact_workspaceId_Workspace_id_fk": {
+          "name": "Artifact_workspaceId_Workspace_id_fk",
+          "tableFrom": "Artifact",
+          "tableTo": "Workspace",
+          "columnsFrom": [
+            "workspaceId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "Artifact_threadId_Thread_id_fk": {
+          "name": "Artifact_threadId_Thread_id_fk",
+          "tableFrom": "Artifact",
+          "tableTo": "Thread",
+          "columnsFrom": [
+            "threadId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "Artifact_createdById_User_id_fk": {
+          "name": "Artifact_createdById_User_id_fk",
+          "tableFrom": "Artifact",
           "tableTo": "User",
           "columnsFrom": [
-            "userId"
+            "createdById"
           ],
           "columnsTo": [
             "id"
@@ -63,82 +158,8 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "Document": {
-      "name": "Document",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "createdAt": {
-          "name": "createdAt",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "title": {
-          "name": "title",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "content": {
-          "name": "content",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "text": {
-          "name": "text",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "'text'"
-        },
-        "userId": {
-          "name": "userId",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "Document_userId_User_id_fk": {
-          "name": "Document_userId_User_id_fk",
-          "tableFrom": "Document",
-          "tableTo": "User",
-          "columnsFrom": [
-            "userId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {
-        "Document_id_createdAt_pk": {
-          "columns": [
-            "id",
-            "createdAt"
-          ],
-          "name": "Document_id_createdAt_pk"
-        }
-      },
-      "uniqueConstraints": {}
-    },
-    "Message_v2": {
-      "name": "Message_v2",
+    "Message": {
+      "name": "Message",
       "columns": {
         "id": {
           "name": "id",
@@ -147,8 +168,15 @@
           "notNull": true,
           "autoincrement": false
         },
-        "chatId": {
-          "name": "chatId",
+        "threadId": {
+          "name": "threadId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "userId": {
+          "name": "userId",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
@@ -156,6 +184,20 @@
         },
         "role": {
           "name": "role",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "text": {
+          "name": "text",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "at": {
+          "name": "at",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
@@ -173,138 +215,24 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
+          "autoincrement": false,
+          "default": "'[]'"
         },
-        "createdAt": {
-          "name": "createdAt",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "Message_v2_chatId_Chat_id_fk": {
-          "name": "Message_v2_chatId_Chat_id_fk",
-          "tableFrom": "Message_v2",
-          "tableTo": "Chat",
-          "columnsFrom": [
-            "chatId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
-    "Stream": {
-      "name": "Stream",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "chatId": {
-          "name": "chatId",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "createdAt": {
-          "name": "createdAt",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "Stream_chatId_Chat_id_fk": {
-          "name": "Stream_chatId_Chat_id_fk",
-          "tableFrom": "Stream",
-          "tableTo": "Chat",
-          "columnsFrom": [
-            "chatId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
-    "Suggestion": {
-      "name": "Suggestion",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "documentId": {
-          "name": "documentId",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "documentCreatedAt": {
-          "name": "documentCreatedAt",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "originalText": {
-          "name": "originalText",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "suggestedText": {
-          "name": "suggestedText",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "description": {
-          "name": "description",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "isResolved": {
-          "name": "isResolved",
+        "isSteer": {
+          "name": "isSteer",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
           "default": false
         },
-        "userId": {
-          "name": "userId",
-          "type": "text",
+        "isInterrupted": {
+          "name": "isInterrupted",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
+          "autoincrement": false,
+          "default": false
         },
         "createdAt": {
           "name": "createdAt",
@@ -314,11 +242,33 @@
           "autoincrement": false
         }
       },
-      "indexes": {},
+      "indexes": {
+        "Message_thread_idx": {
+          "name": "Message_thread_idx",
+          "columns": [
+            "threadId",
+            "createdAt"
+          ],
+          "isUnique": false
+        }
+      },
       "foreignKeys": {
-        "Suggestion_userId_User_id_fk": {
-          "name": "Suggestion_userId_User_id_fk",
-          "tableFrom": "Suggestion",
+        "Message_threadId_Thread_id_fk": {
+          "name": "Message_threadId_Thread_id_fk",
+          "tableFrom": "Message",
+          "tableTo": "Thread",
+          "columnsFrom": [
+            "threadId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "Message_userId_User_id_fk": {
+          "name": "Message_userId_User_id_fk",
+          "tableFrom": "Message",
           "tableTo": "User",
           "columnsFrom": [
             "userId"
@@ -328,24 +278,769 @@
           ],
           "onDelete": "no action",
           "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "Prompt": {
+      "name": "Prompt",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
         },
-        "Suggestion_documentId_documentCreatedAt_Document_id_createdAt_fk": {
-          "name": "Suggestion_documentId_documentCreatedAt_Document_id_createdAt_fk",
-          "tableFrom": "Suggestion",
-          "tableTo": "Document",
+        "title": {
+          "name": "title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "categoryId": {
+          "name": "categoryId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "icon": {
+          "name": "icon",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'library'"
+        },
+        "authorId": {
+          "name": "authorId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "uses": {
+          "name": "uses",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "pinned": {
+          "name": "pinned",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
+        },
+        "official": {
+          "name": "official",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
+        },
+        "desc": {
+          "name": "desc",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "body": {
+          "name": "body",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "Prompt_cat_idx": {
+          "name": "Prompt_cat_idx",
+          "columns": [
+            "categoryId"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "Prompt_categoryId_PromptCategory_id_fk": {
+          "name": "Prompt_categoryId_PromptCategory_id_fk",
+          "tableFrom": "Prompt",
+          "tableTo": "PromptCategory",
           "columnsFrom": [
-            "documentId",
-            "documentCreatedAt"
+            "categoryId"
           ],
           "columnsTo": [
-            "id",
-            "createdAt"
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "Prompt_authorId_User_id_fk": {
+          "name": "Prompt_authorId_User_id_fk",
+          "tableFrom": "Prompt",
+          "tableTo": "User",
+          "columnsFrom": [
+            "authorId"
+          ],
+          "columnsTo": [
+            "id"
           ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "PromptCategory": {
+      "name": "PromptCategory",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "label": {
+          "name": "label",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "icon": {
+          "name": "icon",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'library'"
+        },
+        "color": {
+          "name": "color",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "Routine": {
+      "name": "Routine",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "workspaceId": {
+          "name": "workspaceId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "title": {
+          "name": "title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "cadence": {
+          "name": "cadence",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "ownerId": {
+          "name": "ownerId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "next": {
+          "name": "next",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "''"
+        },
+        "icon": {
+          "name": "icon",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'repeat'"
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'active'"
+        },
+        "ago": {
+          "name": "ago",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'maintenant'"
+        },
+        "prompt": {
+          "name": "prompt",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "Routine_workspace_idx": {
+          "name": "Routine_workspace_idx",
+          "columns": [
+            "workspaceId"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "Routine_workspaceId_Workspace_id_fk": {
+          "name": "Routine_workspaceId_Workspace_id_fk",
+          "tableFrom": "Routine",
+          "tableTo": "Workspace",
+          "columnsFrom": [
+            "workspaceId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "Routine_ownerId_User_id_fk": {
+          "name": "Routine_ownerId_User_id_fk",
+          "tableFrom": "Routine",
+          "tableTo": "User",
+          "columnsFrom": [
+            "ownerId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "RoutineRun": {
+      "name": "RoutineRun",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "routineId": {
+          "name": "routineId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "title": {
+          "name": "title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "date": {
+          "name": "date",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "ranFor": {
+          "name": "ranFor",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "thought": {
+          "name": "thought",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "output": {
+          "name": "output",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "RoutineRun_routine_idx": {
+          "name": "RoutineRun_routine_idx",
+          "columns": [
+            "routineId",
+            "createdAt"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "RoutineRun_routineId_Routine_id_fk": {
+          "name": "RoutineRun_routineId_Routine_id_fk",
+          "tableFrom": "RoutineRun",
+          "tableTo": "Routine",
+          "columnsFrom": [
+            "routineId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "ScheduledTask": {
+      "name": "ScheduledTask",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "workspaceId": {
+          "name": "workspaceId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "threadId": {
+          "name": "threadId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "routineId": {
+          "name": "routineId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "scheduledById": {
+          "name": "scheduledById",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "prompt": {
+          "name": "prompt",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "runAt": {
+          "name": "runAt",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'pending'"
+        },
+        "resultMessageId": {
+          "name": "resultMessageId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "error": {
+          "name": "error",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "ScheduledTask_status_idx": {
+          "name": "ScheduledTask_status_idx",
+          "columns": [
+            "status",
+            "runAt"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "ScheduledTask_workspaceId_Workspace_id_fk": {
+          "name": "ScheduledTask_workspaceId_Workspace_id_fk",
+          "tableFrom": "ScheduledTask",
+          "tableTo": "Workspace",
+          "columnsFrom": [
+            "workspaceId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "ScheduledTask_threadId_Thread_id_fk": {
+          "name": "ScheduledTask_threadId_Thread_id_fk",
+          "tableFrom": "ScheduledTask",
+          "tableTo": "Thread",
+          "columnsFrom": [
+            "threadId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "ScheduledTask_routineId_Routine_id_fk": {
+          "name": "ScheduledTask_routineId_Routine_id_fk",
+          "tableFrom": "ScheduledTask",
+          "tableTo": "Routine",
+          "columnsFrom": [
+            "routineId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "ScheduledTask_scheduledById_User_id_fk": {
+          "name": "ScheduledTask_scheduledById_User_id_fk",
+          "tableFrom": "ScheduledTask",
+          "tableTo": "User",
+          "columnsFrom": [
+            "scheduledById"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "ScheduledTask_resultMessageId_Message_id_fk": {
+          "name": "ScheduledTask_resultMessageId_Message_id_fk",
+          "tableFrom": "ScheduledTask",
+          "tableTo": "Message",
+          "columnsFrom": [
+            "resultMessageId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "Thread": {
+      "name": "Thread",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "workspaceId": {
+          "name": "workspaceId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "title": {
+          "name": "title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "icon": {
+          "name": "icon",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "preview": {
+          "name": "preview",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "lastById": {
+          "name": "lastById",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "updated": {
+          "name": "updated",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'maintenant'"
+        },
+        "pinned": {
+          "name": "pinned",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
+        },
+        "liveState": {
+          "name": "liveState",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "liveUserId": {
+          "name": "liveUserId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "createdById": {
+          "name": "createdById",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "Thread_workspace_idx": {
+          "name": "Thread_workspace_idx",
+          "columns": [
+            "workspaceId"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "Thread_workspaceId_Workspace_id_fk": {
+          "name": "Thread_workspaceId_Workspace_id_fk",
+          "tableFrom": "Thread",
+          "tableTo": "Workspace",
+          "columnsFrom": [
+            "workspaceId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "Thread_lastById_User_id_fk": {
+          "name": "Thread_lastById_User_id_fk",
+          "tableFrom": "Thread",
+          "tableTo": "User",
+          "columnsFrom": [
+            "lastById"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "Thread_liveUserId_User_id_fk": {
+          "name": "Thread_liveUserId_User_id_fk",
+          "tableFrom": "Thread",
+          "tableTo": "User",
+          "columnsFrom": [
+            "liveUserId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "Thread_createdById_User_id_fk": {
+          "name": "Thread_createdById_User_id_fk",
+          "tableFrom": "Thread",
+          "tableTo": "User",
+          "columnsFrom": [
+            "createdById"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "ThreadParticipant": {
+      "name": "ThreadParticipant",
+      "columns": {
+        "threadId": {
+          "name": "threadId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "userId": {
+          "name": "userId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "joinedAt": {
+          "name": "joinedAt",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "ThreadParticipant_threadId_Thread_id_fk": {
+          "name": "ThreadParticipant_threadId_Thread_id_fk",
+          "tableFrom": "ThreadParticipant",
+          "tableTo": "Thread",
+          "columnsFrom": [
+            "threadId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "ThreadParticipant_userId_User_id_fk": {
+          "name": "ThreadParticipant_userId_User_id_fk",
+          "tableFrom": "ThreadParticipant",
+          "tableTo": "User",
+          "columnsFrom": [
+            "userId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "ThreadParticipant_threadId_userId_pk": {
+          "columns": [
+            "threadId",
+            "userId"
+          ],
+          "name": "ThreadParticipant_threadId_userId_pk"
+        }
+      },
       "uniqueConstraints": {}
     },
     "User": {
@@ -402,6 +1097,35 @@
           "autoincrement": false,
           "default": false
         },
+        "role": {
+          "name": "role",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'member'"
+        },
+        "title": {
+          "name": "title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "color": {
+          "name": "color",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "initials": {
+          "name": "initials",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "createdAt": {
           "name": "createdAt",
           "type": "integer",
@@ -422,25 +1146,138 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "Vote_v2": {
-      "name": "Vote_v2",
+    "Workspace": {
+      "name": "Workspace",
       "columns": {
-        "chatId": {
-          "name": "chatId",
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
-        "messageId": {
-          "name": "messageId",
+        "slug": {
+          "name": "slug",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
-        "isUpvoted": {
-          "name": "isUpvoted",
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "emoji": {
+          "name": "emoji",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'folder-kanban'"
+        },
+        "color": {
+          "name": "color",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'#4B2882'"
+        },
+        "isPublic": {
+          "name": "isPublic",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
+        },
+        "updated": {
+          "name": "updated",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'maintenant'"
+        },
+        "createdById": {
+          "name": "createdById",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "Workspace_slug_idx": {
+          "name": "Workspace_slug_idx",
+          "columns": [
+            "slug"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {
+        "Workspace_createdById_User_id_fk": {
+          "name": "Workspace_createdById_User_id_fk",
+          "tableFrom": "Workspace",
+          "tableTo": "User",
+          "columnsFrom": [
+            "createdById"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "WorkspaceMember": {
+      "name": "WorkspaceMember",
+      "columns": {
+        "workspaceId": {
+          "name": "workspaceId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "userId": {
+          "name": "userId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "role": {
+          "name": "role",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'member'"
+        },
+        "joinedAt": {
+          "name": "joinedAt",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
@@ -449,12 +1286,12 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "Vote_v2_chatId_Chat_id_fk": {
-          "name": "Vote_v2_chatId_Chat_id_fk",
-          "tableFrom": "Vote_v2",
-          "tableTo": "Chat",
+        "WorkspaceMember_workspaceId_Workspace_id_fk": {
+          "name": "WorkspaceMember_workspaceId_Workspace_id_fk",
+          "tableFrom": "WorkspaceMember",
+          "tableTo": "Workspace",
           "columnsFrom": [
-            "chatId"
+            "workspaceId"
           ],
           "columnsTo": [
             "id"
@@ -462,12 +1299,12 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "Vote_v2_messageId_Message_v2_id_fk": {
-          "name": "Vote_v2_messageId_Message_v2_id_fk",
-          "tableFrom": "Vote_v2",
-          "tableTo": "Message_v2",
+        "WorkspaceMember_userId_User_id_fk": {
+          "name": "WorkspaceMember_userId_User_id_fk",
+          "tableFrom": "WorkspaceMember",
+          "tableTo": "User",
           "columnsFrom": [
-            "messageId"
+            "userId"
           ],
           "columnsTo": [
             "id"
@@ -477,12 +1314,12 @@
         }
       },
       "compositePrimaryKeys": {
-        "Vote_v2_chatId_messageId_pk": {
+        "WorkspaceMember_workspaceId_userId_pk": {
           "columns": [
-            "chatId",
-            "messageId"
+            "workspaceId",
+            "userId"
           ],
-          "name": "Vote_v2_chatId_messageId_pk"
+          "name": "WorkspaceMember_workspaceId_userId_pk"
         }
       },
       "uniqueConstraints": {}
