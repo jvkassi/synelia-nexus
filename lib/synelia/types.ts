@@ -135,6 +135,8 @@ export interface PromptCategory {
   id: string;
   label: string;
   icon: string;
+  /** Number of prompts in this category (computed at seed/load time). */
+  count?: number;
 }
 
 export interface Prompt {

@@ -1,15 +1,4 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Open+Sans:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap');
-/* ============================================================
-   SYNELIA — Design Foundations
-   Couleurs, typographie & tokens
-   Référence: uploads/synelia-design.txt (Charte graphique)
-   ============================================================ */
-
-/* --- Webfonts (Google Fonts CDN) ----------------------------
-   Montserrat (display), Open Sans (body), JetBrains Mono (code)
-   If working offline, drop local files into /fonts and swap the
-   @import below for @font-face rules. ------------------------- */
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Open+Sans:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap');
 
 :root {
   /* ---------- COULEURS PRIMAIRES ---------- */
@@ -133,7 +122,6 @@ em, .quote { font-style: italic; }
 
 /* Synelia Cowork — Webfonts (Google Fonts CDN). Must precede all
  * non-@charset/@layer rules per CSS spec. */
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Open+Sans:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap');
 
 @import "tailwindcss";
 @import "katex/dist/katex.min.css";

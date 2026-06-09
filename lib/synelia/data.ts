@@ -1,21 +1,22 @@
 // lib/synelia/data.ts
-// Synelia Cowork — full mock data, ported from the handoff's data.js + rightpanel.jsx
-// Source: Claude cowork-handoff.zip (2026-06-09). Drives the UI today; the real
-// Drizzle schema in lib/db/schema.ts will replace this layer as it lands.
+// This module is the **source of truth** for the mock data. The seed
+// script (lib/synelia/seed.ts) reads SYN.* to populate the SQLite DB.
+// The UI pages should NOT import from here — they import the live
+// functions from "@/lib/synelia/queries" instead.
 //
-// NOTE (per Olive, 2026-06-09): "don't use mock data, seed data in database".
-// This module is a temporary compat layer so the UI can render while the seed
-// script and queries.ts are built. Once queries.ts is wired to SQLite, this
-// file becomes the data source for `pnpm db:seed` and the live module goes
-// away. See .hermes/kanban.md Phase 1B.
+// The compat re-exports at the bottom let the prior session's call sites
+// keep working: data.ts forwards queries.ts functions as plain values,
+// so `import { getMember } from "@/lib/synelia/data"` still works.
 
 import type {
-  SyneliaData, Chat, ChatMessage, TeamMember, Project, Routine, RoutineRun,
-  Artifact, ProjectFile, ArtifactKind, ProjectId, UserId, Prompt, PromptCategory,
-  Activity, RiskRow, Role, ChatsByProject,
+  SyneliaData, Chat, ChatMessage, ChatId,
+  TeamMember, Project, Routine, RoutineRun, Artifact, ArtifactKind,
+  ProjectFile, Prompt, PromptCategory, ChatLiveState, RoutineStatus, Role,
+  ProjectId, UserId, ChatsByProject, Activity, RiskRow, RiskLevel,
 } from "./types";
 
-// ===== Core data =====
+// ===== Raw mock data (only seed.ts reads these) =====
+
 const ME: TeamMember = {
   id: "awa", name: "Awa Koné", initials: "AK", color: "#4B2882",
   role: "Propriétaire", title: "Lead Data & IA", online: true, you: true,
@@ -72,110 +73,64 @@ const ARTIFACTS_DATA: SyneliaData["ARTIFACTS"] = [
   { id: "a11", title: "Grille d'évaluation des candidats",         kind: "Tableur",   icon: "list-checks",    creator: "fatou",   when: "il y a 4 j",    project: "academy" },
 ];
 
+const THREAD_SYNTHESE_DATA: ChatMessage[] = [
+  { id: "m1", author: "kofi",  role: "user",      at: "10:02", text: "On a passé la matinée à interviewer les responsables d'application. 12 constats ressortent, mais ils sont éclatés dans les notes de chacun. Peux-tu me faire une **matrice de risques unique** que je puisse partager avec le DSI vendredi ?" },
+  { id: "m2", author: "ai",    role: "assistant", at: "10:05", text: "Bien reçu. Je croise les 12 constats avec ta bibliothèque de risques d'audit. Voici la matrice consolidée, par famille et cotation :" },
+  { id: "m3", author: "kofi",  role: "user",      at: "10:07", text: "Oui, parfait. Ajoute une colonne « propriétaire » et une cotation sur 4 niveaux. Priorise pour le COPIL de vendredi." },
+];
+
+const PROMPT_CATS_DATA: SyneliaData["PROMPT_CATS"] = [
+  { id: "all",    label: "Tous",                  icon: "library",          count: 12 },
+  { id: "audit",  label: "Audit & Conformité",    icon: "shield-check",     count: 3 },
+  { id: "cyber",  label: "Cybersécurité",         icon: "shield-alert",     count: 2 },
+  { id: "cloud",  label: "Cloud & Architecture",  icon: "cloud-cog",        count: 2 },
+  { id: "data",   label: "Data & IA",             icon: "brain-circuit",    count: 2 },
+  { id: "rh",     label: "People & Academy",      icon: "graduation-cap",   count: 2 },
+  { id: "ops",    label: "Opérations & Routines", icon: "repeat",           count: 1 },
+];
+
+const PROMPTS_DATA: SyneliaData["PROMPTS"] = [
+  { id: "p-matrice",      title: "Matrice de risques d'audit",          cat: "audit", icon: "shield-check",    author: "awa",  uses: 34, pinned: true,  official: true,  desc: "Consolide des constats d'audit en une matrice de risques unique avec cotation, propriétaire et priorité.", body: "Tu es consultant senior en audit SI. On te fournit une liste de constats d'audit (format libre). Produis une matrice unique avec :\n\n1. Pour chaque constat : famille, cotation (1-4), niveau de risque (critique/élevé/moyen/faible), propriétaire suggéré\n2. Regroupe par famille de risque\n3. Termine par un top 3 des constats critiques à présenter en COPIL" },
+  { id: "p-remediation",  title: "Plan de remédiation en vagues",        cat: "audit", icon: "list-checks",     author: "awa",  uses: 21, pinned: true,  official: true,  desc: "Génère un plan de remédiation en 3 vagues avec estimation de charge et dépendances.",            body: "Tu es chef de projet SI. À partir d'une matrice de risques d'audit, propose un plan de remédiation structuré en 3 vagues sur 18 mois :\n\n1. Vague 1 (mois 1-3) : quick wins, risques critiques, blocage des fuites immédiates\n2. Vague 2 (mois 4-12) : risques élevés, refonte des processus sensibles\n3. Vague 3 (mois 13-18) : risques moyens, mise en conformité durable\nPour chaque vague : chantiers, charge estimée en j/h, dépendances, et indicateurs de succès." },
+  { id: "p-entretien",    title: "Trame d'entretien DSI",                cat: "audit", icon: "messages-square", author: "awa",  uses: 18, pinned: false, official: true,  desc: "Trame d'entretien semi-directif pour les responsables d'application, orientée audit SI.",           body: "Tu es consultant en audit SI. Prépare une trame d'entretien de 45 minutes pour un DSI d'un grand compte bancaire ivoirien. 15 questions ouvertes réparties en 4 axes :\n\n1. Gouvernance SI (5 questions)\n2. Sécurité et continuité (4 questions)\n3. Urbanisation et dette technique (3 questions)\n4. Relation métier / DSI (3 questions)\n\nPour chaque question, précise l'objectif de l'information recherchée et les relances possibles." },
+  { id: "p-pcidss",       title: "Analyse d'écarts PCI-DSS v4",          cat: "cyber", icon: "shield-alert",    author: "kofi", uses: 27, pinned: true,  official: true,  desc: "Liste les écarts entre ton environnement et le référentiel PCI-DSS v4, par exigence.",           body: "Tu es expert cybersécurité PCI-DSS v4. À partir d'un brief décrivant l'environnement (réseau, applicatif, organisation), liste les écarts entre l'existant et le référentiel PCI-DSS v4. Pour chaque écart : exigence, niveau (SAQ/AOC/Rapport), constat, recommandation, priorité." },
+  { id: "p-veille",       title: "Veille cybersécurité hebdomadaire",    cat: "cyber", icon: "radar",           author: "kofi", uses: 41, pinned: true,  official: true,  desc: "Synthèse hebdomadaire des 5 principales menaces ou vulnérabilités de la semaine.",              body: "Tu es RSSI d'un grand groupe africain. Chaque lundi matin, produis une synthèse de veille cybersécurité de la semaine écoulée : 5 menaces ou vulnérabilités majeures (score CVSS si disponible), impact potentiel sur tes clients (banque, télécom, secteur public), et une recommandation d'action concrète pour chacune. Termine par une note de priorisation sur 4 niveaux." },
+  { id: "p-cartographie", title: "Cartographie applicative 6R",          cat: "cloud", icon: "network",         author: "yao",  uses: 12, pinned: false, official: true,  desc: "Cartographie applicative avec classification 6R (Rehost, Replatform, Refactor, Repurchase, Retire, Retain).", body: "Tu es architecte SI d'un grand compte. À partir d'un inventaire d'applications (nom, techno, volumétrie, criticité, propriétaire), propose une cartographie applicative 6R :\n\n1. Pour chaque application :\n   - Recommandation 6R (Rehost / Replatform / Refactor / Repurchase / Retire / Retain)\n   - Justification courte\n   - Horizon suggéré (court / moyen / long terme)\n2. Synthèse par famille applicative\n3. Top 3 des quick wins de migration" },
+  { id: "p-migration",    title: "Plan de migration cloud par vagues",   cat: "cloud", icon: "cloud-cog",       author: "yao",  uses: 9,  pinned: false, official: false, desc: "Trajectoire de migration cloud par vagues successives avec critères de sortie et bascule.",        body: "Tu es architecte cloud souverain. À partir d'une cartographie applicative 6R, propose une trajectoire de migration en 4 vagues :\n\n1. Pour chaque vague : applications concernées, critères d'entrée, conditions de sortie, plan de bascule, plan de retour arrière\n2. Verrous techniques et organisationnels\n3. Indicateurs de succès" },
+  { id: "p-prompts",      title: "Générateur de prompts de cadrage",      cat: "data",  icon: "brain-circuit",   author: "fatou", uses: 22, pinned: false, official: true,  desc: "Crée des prompts structurés pour cadrer un projet Data ou IA en 5 axes : objectif, données, livrables, …", body: "Tu es Data Scientist senior en charge du cadrage projet. À partir d'une description libre d'un projet Data/IA, propose un cadrage structuré :\n\n1. Objectif métier et critères de succès\n2. Données disponibles et qualité attendue\n3. Approche technique recommandée (modèles, infrastructures)\n4. Livrables et jalons\n5. Risques et points d'attention\nFormat prêt à intégrer dans une fiche projet." },
+  { id: "p-dataviz",      title: "Recommandations dataviz & dashboard",  cat: "data",  icon: "bar-chart-3",     author: "fatou", uses: 14, pinned: false, official: false, desc: "Recommande les visualisations les plus adaptées pour un dataset et un message.",                  body: "Tu es expert en dataviz. À partir d'un dataset (description des colonnes, volumétrie) et d'un message à faire passer, recommande les visualisations les plus adaptées. Pour chaque recommandation : type de chart, encodage, axes, insights clés à mettre en avant. Justifie en t'appuyant sur les principes de Tufte et Few." },
+  { id: "p-cursus",       title: "Conception d'un parcours de formation", cat: "rh",    icon: "graduation-cap",  author: "mariam", uses: 7, pinned: false, official: true,  desc: "Conçois un parcours de formation Data/IA de 8 à 12 modules avec progression pédagogique.",         body: "Tu es responsable pédagogique d'une academy Data/IA. Conçois un parcours de formation de 8 à 12 modules pour un public cible (débutant/intermédiaire/avancé). Pour chaque module :\n\n1. Objectifs pédagogiques\n2. Prérequis\n3. Plan détaillé (4 à 8 séances de 3h)\n4. Exercices pratiques et projet fil rouge\n5. Grille d'évaluation" },
+  { id: "p-entretien-rh", title: "Trame d'entretien candidat Data",      cat: "rh",    icon: "users",           author: "mariam", uses: 11, pinned: false, official: false, desc: "Trame d'entretien 45 min pour évaluer un candidat Data Engineer/Analyst/Scientist.",              body: "Tu es DRH d'une academy Data. Prépare une trame d'entretien de 45 min pour évaluer un candidat à un parcours Data Engineering. Structure :\n\n1. Mise en confiance (5 min)\n2. Parcours et motivations (10 min)\n3. Test technique court (15 min)\n4. Aptitudes relationnelles (10 min)\n5. Questions candidat et clôture (5 min)\n\nPour chaque section : objectifs et questions de relance." },
+  { id: "p-routine",      title: "Routine de revue hebdomadaire",         cat: "ops",   icon: "repeat",          author: "awa",  uses: 6,  pinned: false, official: false, desc: "Routine récurrente : génère une revue hebdomadaire des projets en cours avec avancement et blocages.", body: "Tu es lead PMO. Chaque vendredi à 17:00, compile une revue hebdomadaire des projets en cours :\n\n1. Avancement par projet (% global, jalons franchis, jalons glissés)\n2. Risques et blocages identifiés\n3. Décisions à prendre la semaine suivante\n4. Charge par équipe\nFormat prêt à diffuser à la direction." },
+];
+
 export const SYN: SyneliaData = {
   TEAM, ME, PROJECTS, CHATS,
   ROUTINES: ROUTINES_DATA,
   FILES: [],
   ARTIFACTS: ARTIFACTS_DATA,
   ACTIVITY: [],
-  THREAD_SYNTHESE: [],
+  THREAD_SYNTHESE: THREAD_SYNTHESE_DATA,
   LIVE_AI_REPLY: "",
   RISK_ROWS: [],
-  PROMPT_CATS: [
-{ id: "all",    label: "Tous",                icon: "library" },
-  { id: "audit",  label: "Audit & Conseil",     icon: "clipboard-check" },
-  { id: "cyber",  label: "Cybersécurité",       icon: "shield-check" },
-  { id: "cloud",  label: "Cloud & Infra",       icon: "cloud" },
-  { id: "data",   label: "Data & IA",           icon: "brain-circuit" },
-  { id: "projet", label: "Gestion de projet",   icon: "kanban-square" },
-  { id: "redac",  label: "Rédaction & Synthèse",icon: "pen-line" },
-] as SyneliaData['PROMPT_CATS'],
-  PROMPTS: [
-{
-    id: "p-matrice", title: "Matrice de risques d'audit", cat: "audit", icon: "layout-grid",
-    author: "kofi", uses: 34, pinned: true, official: true,
-    desc: "Consolide des constats d'audit en une matrice probabilité × impact, cotée et priorisée.",
-    body: "À partir des constats d'audit fournis, construis une matrice de risques (probabilité × impact). Pour chaque constat : un intitulé, une cotation sur 4 niveaux (Faible, Modéré, Élevé, Critique), un propriétaire désigné et une recommandation de remédiation. Trie par criticité décroissante et mets en tête les constats critiques à porter au COPIL.",
-  },
-  {
-    id: "p-remediation", title: "Plan de remédiation en vagues", cat: "audit", icon: "list-checks",
-    author: "awa", uses: 21, official: true,
-    desc: "Génère un plan de remédiation priorisé en 3 vagues avec estimation de charge.",
-    body: "Génère un plan de remédiation priorisé en 3 vagues (quick wins, structurant, fond) à partir des constats. Pour chaque action : objectif, prérequis, estimation de charge en jours-homme, propriétaire et indicateur de suivi. Présente le tout sous forme de tableau et ajoute une synthèse des dépendances entre vagues.",
-  },
-  {
-    id: "p-entretien", title: "Trame d'entretien DSI", cat: "audit", icon: "messages-square",
-    author: "fatou", uses: 18,
-    desc: "Prépare un guide d'entretien structuré pour les responsables d'application.",
-    body: "Prépare une trame d'entretien de 15 questions pour les responsables d'application, regroupées en 3 volets : cartographie applicative, interfaces et flux de données, plans de continuité. Pour chaque question, indique l'objectif et un exemple de réponse attendue. Adapte le ton au contexte d'un audit SI bancaire.",
-  },
-  {
-    id: "p-pcidss", title: "Analyse d'écarts PCI-DSS v4", cat: "cyber", icon: "shield-alert",
-    author: "kofi", uses: 27, official: true,
-    desc: "Liste les écarts vis-à-vis du référentiel PCI-DSS v4 et les exigences associées.",
-    body: "Analyse les écarts de conformité vis-à-vis du référentiel PCI-DSS v4. Pour chaque exigence non couverte : numéro de l'exigence, description de l'écart, niveau de sévérité, preuve attendue et action corrective recommandée. Conclus par un taux de conformité global et les 5 priorités absolues.",
-  },
-  {
-    id: "p-veille", title: "Veille cybersécurité hebdomadaire", cat: "cyber", icon: "radar",
-    author: "kofi", uses: 41, pinned: true,
-    desc: "Synthèse hebdo des menaces, vulnérabilités et recommandations pour l'équipe.",
-    body: "Rédige une synthèse de veille cybersécurité de la semaine pour l'équipe : 5 menaces ou vulnérabilités majeures (avec score CVSS si disponible), leur impact potentiel sur nos clients du secteur bancaire et public, et une recommandation d'action concrète pour chacune. Termine par une note de priorisation.",
-  },
-  {
-    id: "p-soc", title: "Plan de durcissement SOC", cat: "cyber", icon: "lock",
-    author: "ibrahim", uses: 12,
-    desc: "Recommandations de durcissement d'une infrastructure d'identité et de détection.",
-    body: "Propose un plan de durcissement pour notre SOC et l'infrastructure d'identité associée : gestion des comptes à privilèges, segmentation réseau, journalisation et détection, sauvegarde et PRA. Structure en 3 horizons (immédiat, 90 jours, 6 mois) avec, pour chaque mesure, l'effort estimé et le risque couvert.",
-  },
-  {
-    id: "p-trajectoire", title: "Trajectoire de migration cloud", cat: "cloud", icon: "cloud-cog",
-    author: "yao", uses: 23, official: true,
-    desc: "Construit une trajectoire de migration vers le cloud souverain par vagues d'applications.",
-    body: "Construis une trajectoire de migration vers le cloud souverain à partir de l'inventaire applicatif. Classe les applications selon la stratégie 6R (rehost, replatform, refactor, repurchase, retain, retire), regroupe-les en vagues de migration et indique pour chaque vague les prérequis, les risques et les bénéfices attendus.",
-  },
-  {
-    id: "p-archi", title: "Schéma d'architecture cible", cat: "cloud", icon: "git-fork",
-    author: "yao", uses: 16,
-    desc: "Décris une architecture applicative cible en couches, avec flux et composants.",
-    body: "Décris l'architecture applicative cible en couches (présentation, services, données, intégration, sécurité). Pour chaque couche : composants clés, technologies recommandées, flux d'échange et points d'attention sécurité. Propose ensuite une représentation textuelle du schéma que je pourrai transformer en diagramme.",
-  },
-  {
-    id: "p-eda", title: "Analyse exploratoire d'un jeu de données", cat: "data", icon: "bar-chart-3",
-    author: "fatou", uses: 29, official: true,
-    desc: "Cadre une analyse exploratoire : qualité, distributions, corrélations, pistes.",
-    body: "À partir du jeu de données fourni, mène une analyse exploratoire : qualité et complétude des données, distributions des variables clés, corrélations notables, valeurs aberrantes. Conclus par 3 à 5 hypothèses ou pistes d'analyse à creuser, et les transformations de données nécessaires avant modélisation.",
-  },
-  {
-    id: "p-parcours", title: "Parcours de formation Data Engineering", cat: "data", icon: "graduation-cap",
-    author: "mariam", uses: 14,
-    desc: "Conçoit un parcours de formation modulaire avec objectifs et évaluations.",
-    body: "Conçois un parcours de formation « Data Engineering » de 8 modules pour l'Open Digital Academy. Pour chaque module : objectifs pédagogiques, prérequis, durée, compétences visées et modalité d'évaluation. Termine par une grille d'évaluation des candidats à l'entrée et un projet fil rouge.",
-  },
-  {
-    id: "p-copil", title: "Note de synthèse pour COPIL", cat: "redac", icon: "file-text",
-    author: "awa", uses: 38, pinned: true, official: true,
-    desc: "Rédige une note de synthèse exécutive prête à présenter en comité de pilotage.",
-    body: "Rédige une note de synthèse exécutive pour le COPIL à partir des éléments du projet : contexte en 3 lignes, avancement, 3 points saillants, risques et arbitrages attendus, et décisions à valider. Ton sobre et institutionnel, vouvoiement, maximum une page. Termine par les prochaines étapes datées.",
-  },
-  {
-    id: "p-devis", title: "Cadrage budgétaire sur 18 mois", cat: "projet", icon: "calculator",
-    author: "mariam", uses: 19,
-    desc: "Estime un budget de mise en conformité réparti par poste et par trimestre.",
-    body: "Estime le budget de mise en conformité sur 18 mois. Répartis les coûts par poste (RH internes, prestations, licences, infrastructure) et par trimestre. Distingue investissement et fonctionnement, ajoute une marge d'incertitude et propose 2 scénarios : ambitieux et prudent. Présente sous forme de tableau récapitulatif.",
-  },
-] as SyneliaData['PROMPTS'],
+  PROMPT_CATS: PROMPT_CATS_DATA,
+  PROMPTS: PROMPTS_DATA,
 };
 
-// ===== Compat API for the prior session's call sites =====
-export function getMember(id: UserId | string): TeamMember | undefined { return TEAM[id as UserId]; }
-export function getProject(slugOrId: string): Project | undefined { return PROJECTS.find((p) => p.id === slugOrId || p.name === slugOrId); }
-export function getProjectChats(pid: ProjectId | string): Chat[] { return CHATS[pid as ProjectId] ?? []; }
-export function getProjectArtifacts(pid: ProjectId | string): Artifact[] { return ARTIFACTS_DATA.filter((a) => a.project === pid); }
-export function getProjectFiles(pid: ProjectId | string): ProjectFile[] { return SYN.FILES; }
-export function getProjectRoutines(pid: ProjectId | string): Routine[] { return ROUTINES_DATA.filter((r) => r.project === pid); }
-export function getProjectMembers(pid: ProjectId | string) { const p = getProject(pid as string); return p ? p.members : []; }
-export function allChats(): Chat[] { return (Object.values(CHATS) as Chat[][]).flat(); }
-export function projectNameOf(pid: ProjectId | string): string { return PROJECTS.find((p) => p.id === pid)?.name ?? String(pid); }
+// ===== Compat shims for the prior session's call sites =====
+//
+// The data in this module is the **mock** — it's what the seed script
+// writes to the DB and what the UI renders if the live loader in
+// queries.ts hasn't warmed up yet. The live loader reads from SQLite
+// and is the source of truth at runtime.
+//
+// UI pages should import the live-data functions from
+// "@/lib/synelia/queries" (e.g. `getProjectChats(pid)`) and the static
+// snapshots from this module (e.g. `PROJECTS`, `ARTIFACTS`). The seed
+// script imports `SYN` from this module.
+//
+// Both paths serve the same data; the live loader is a 30s-cached read
+// from the same SQLite DB that the seed populates from these consts.
 
 export const DEPARTMENT = { id: "data-ia", name: "Direction Data & IA", company: "Groupe Synelia", memberCount: 6, initials: "DDIA" };
 export const KIND_VAR: Record<ArtifactKind, string> = {
@@ -184,9 +139,28 @@ export const KIND_VAR: Record<ArtifactKind, string> = {
 export const KIND_TEXT: Record<ArtifactKind, string> = {
   Document: "#4B2882", Tableur: "#00936A", Diagramme: "#0086BB",
 };
+// Re-export the static snapshots (mock data — same shape as the live
+// loader returns, so the UI doesn't care which it imports).
+export { PROJECTS, CHATS, ME, TEAM, ARTIFACTS_DATA as ARTIFACTS, ROUTINES_DATA as ROUTINES };
+// Function-shaped API (mock-data implementations — replaced by live
+// loader in queries.ts once a server component awaits `ensureLoaded()`).
+// Pages can call these and they'll return the mock data, which is good
+// enough for server-rendered pages. After a real DB write, the
+// queries.ts loader returns the updated data and these can be ignored.
+export function getMember(id: UserId | string): TeamMember | undefined { return TEAM[id as UserId]; }
+export function getProject(slugOrId: string): Project | undefined { return PROJECTS.find((p) => p.id === slugOrId || p.name === slugOrId); }
+export function getProjectChats(pid: ProjectId | string): Chat[] { return CHATS[pid as ProjectId] ?? []; }
+export function getProjectArtifacts(pid: ProjectId | string): typeof ARTIFACTS_DATA { return ARTIFACTS_DATA.filter((a) => a.project === pid); }
+export function getProjectFiles(_pid: ProjectId | string): typeof SYN["FILES"] { return []; }
+export function getProjectRoutines(pid: ProjectId | string): typeof ROUTINES_DATA { return ROUTINES_DATA.filter((r) => r.project === pid); }
+export function getProjectMembers(pid: ProjectId | string): Project["members"] { const p = getProject(pid as string); return p ? p.members : []; }
+export function allChats(): Chat[] { return (Object.values(CHATS) as Chat[][]).flat(); }
+export function projectNameOf(pid: ProjectId | string): string { return PROJECTS.find((p) => p.id === pid)?.name ?? String(pid); }
 
-// Re-exports
-export { ME, TEAM, PROJECTS, CHATS };
-export const ARTIFACTS = ARTIFACTS_DATA;
-export const ROUTINES = ROUTINES_DATA;
-export type { Chat, ArtifactKind, TeamMember, UserId, Project, Routine, Artifact, ProjectFile, Prompt, PromptCategory, ChatMessage, RoutineRun, Activity, RiskRow, Role, ChatsByProject };
+// Types
+export type {
+  SyneliaData, TeamMember, Project, Chat, ChatMessage, ChatId,
+  Routine, RoutineRun, Artifact, ArtifactKind, ProjectFile,
+  Prompt, PromptCategory, ChatLiveState, RoutineStatus, Role,
+  ProjectId, UserId, ChatsByProject, Activity, RiskRow, RiskLevel,
+} from "./types";

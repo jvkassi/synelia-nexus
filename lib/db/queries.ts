@@ -9,6 +9,7 @@ import { config } from "dotenv";
 import { drizzle } from "drizzle-orm/libsql";
 import { eq } from "drizzle-orm";
 import { user, type User } from "./schema";
+import { generateHashedPassword } from "./utils";
 
 config({ path: ".env.local" });
 config({ path: ".env" });
@@ -24,7 +25,11 @@ export async function getUser(email: string): Promise<User[]> {
 }
 
 export async function createUser(email: string, password: string, name?: string): Promise<void> {
-  await db.insert(user).values({ email, password, name: name ?? null });
+  await db.insert(user).values({
+    email,
+    password: generateHashedPassword(password),
+    name: name ?? null,
+  });
 }
 
 export async function createGuestUser(): Promise<User[]> {
