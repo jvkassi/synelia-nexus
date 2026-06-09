@@ -43,8 +43,8 @@ export function AvatarStack({
 }
 
 /** Magenta "En direct" pill with a pulsing dot — used on chat lists and project cards. */
-export function LivePill({ children = "En direct" }: { children?: React.ReactNode }) {
-  return <span className="pill pill-live"><span className="d" />{children}</span>;
+export function LivePill({ children = "En direct", style }: { children?: React.ReactNode; style?: React.CSSProperties }) {
+  return <span className="pill pill-live" style={style}><span className="d" />{children}</span>;
 }
 
 // Local type so this file doesn't need an import alias

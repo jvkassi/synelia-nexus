@@ -25,3 +25,8 @@ yarn-error.log*
 /playwright/*
 next-env.d.ts
 tsconfig.tsbuildinfo
+
+# SQLite data files (generated at runtime via db:reset)
+data/*.db
+data/*.db-*
+data/*.db.bak*

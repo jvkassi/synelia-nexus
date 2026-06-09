@@ -1,138 +1,126 @@
+export const dynamic = "force-dynamic";
+
 import {
-  FileTextIcon,
   MessageSquareIcon,
-  PlusIcon,
+  FileTextIcon,
   RepeatIcon,
-  SparklesIcon,
+  PlusIcon,
   UsersIcon,
 } from "lucide-react";
 import Link from "next/link";
 import { auth } from "@/app/(auth)/auth";
-import { SyneliaRule } from "@/components/synelia-rule";
 import { AvatarStack } from "@/components/synelia/avatar";
 import { Icon } from "@/components/synelia/icon";
 import {
+  ensureLoaded,
   allChats,
   getMember,
   getProjectChats,
   PROJECTS,
   projectNameOf,
   ROUTINES,
-} from "@/lib/synelia/data";
+} from "@/lib/synelia/queries";
 
 /**
  * Synelia Cowork — Dashboard (Home).
  * Greeting from the signed-in user; project cards, recent conversations and
- * active routines from the workspace data.
+ * active routines from the workspace data. Uses cowork CSS `dash*` classes.
  */
 export default async function HomePage() {
+  await ensureLoaded();
   const session = await auth();
   const fullName = session?.user?.name ?? session?.user?.email?.split("@")[0] ?? "";
   const firstName = fullName.split(" ")[0] || "vous";
+
+  const projects = PROJECTS();
+  const routines = ROUTINES();
 
   const recentChats = allChats()
     .filter((c) => c.live)
     .concat(allChats().filter((c) => !c.live))
     .slice(0, 5);
 
-  const activeRoutines = ROUTINES.filter((r) => r.status === "active").slice(0, 4);
+  const activeRoutines = routines.filter((r) => r.status === "active").slice(0, 4);
   const liveCount = allChats().filter((c) => c.live).length;
 
   return (
-    <div className="mx-auto max-w-[1280px] px-10 py-10">
+    <div className="dash">
       {/* HERO */}
-      <header className="flex items-end justify-between">
+      <div className="dash-hero">
         <div>
-          <span className="synelia-eyebrow">{new Date().getHours() < 18 ? "Bonjour" : "Bonsoir"}</span>
-          <h1 className="mt-2 font-display text-[40px] font-bold leading-tight text-[var(--primary)]">
-            Bonjour, {firstName}.
-          </h1>
-          <p className="mt-2 font-body text-[15px] text-[var(--text-muted)]">
+          <div className="dash-kicker">Espace de travail collaboratif</div>
+          <h1>Bonjour, {firstName}.</h1>
+          <p className="greet-sub">
             Votre équipe partage{" "}
-            <span className="font-bold text-[var(--foreground)]">
-              {PROJECTS.length} projets
-            </span>
+            <strong style={{ color: "var(--color-text)" }}>
+              {projects.length} projet{projects.length > 1 ? "s" : ""}
+            </strong>
             {liveCount > 0 && (
               <>
                 {" · "}
-                <span className="font-bold text-[var(--accent)]">
+                <span style={{ color: "var(--color-accent)", fontWeight: 600 }}>
                   {liveCount} conversation{liveCount > 1 ? "s" : ""} en direct
                 </span>
               </>
             )}
-            .
           </p>
         </div>
-        <div className="flex items-center gap-3">
-          <button
-            className="synelia-btn synelia-btn-ghost h-10 px-4 text-[13px]"
-            type="button"
-          >
-            <UsersIcon className="size-4" />
+        <div style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0 }}>
+          <button className="btn btn-ghost" type="button">
+            <UsersIcon size={14} />
             Inviter
           </button>
-          <Link
-            className="synelia-btn synelia-btn-primary h-10 px-4 text-[13px]"
-            href="/new-project"
-          >
-            <PlusIcon className="size-4" />
+          <Link className="btn btn-primary" href="/new-project">
+            <PlusIcon size={14} />
             Nouveau projet
           </Link>
         </div>
-      </header>
-      <SyneliaRule />
+      </div>
+
+      <div className="rule-mag" />
 
       {/* MAIN GRID */}
-      <section className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-12">
-        {/* Project cards — 8 col */}
-        <div className="lg:col-span-8">
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="font-display text-[18px] font-bold text-[var(--primary)]">
-              Projets partagés
-            </h2>
-            <Link
-              className="font-body text-[12px] font-semibold text-[var(--primary)] hover:underline"
-              href="/w"
-            >
-              Tout afficher &rarr;
-            </Link>
-          </div>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            {PROJECTS.map((p) => {
+      <div className="dash-grid">
+        {/* LEFT: project cards */}
+        <div>
+          <p className="col-title">
+            Projets partagés
+            <span className="n">{projects.length}</span>
+            <Link className="more" href="/w">Tout afficher</Link>
+          </p>
+          <div className="proj-cards">
+            {projects.map((p) => {
               const live = getProjectChats(p.id).some((c) => c.live);
               return (
-                <Link
-                  className="group relative flex flex-col gap-3 rounded-lg border border-[var(--border)] bg-white p-5 transition-all hover:border-[var(--primary-mid)] hover:shadow-[var(--shadow-md)]"
-                  href={`/w/${p.id}`}
-                  key={p.id}
-                >
-                  <div className="flex items-start gap-3">
+                <Link key={p.id} href={`/w/${p.id}`} className="pcard">
+                  {live && (
+                    <span className="live-tag">
+                      <span className="pill pill-live">
+                        <span className="d" />
+                        En direct
+                      </span>
+                    </span>
+                  )}
+                  <div className="top">
                     <span
-                      className="flex size-12 shrink-0 items-center justify-center rounded-md text-white"
+                      className="p-ic"
                       style={{ background: p.color }}
                     >
-                      <Icon className="size-5" name={p.emoji} />
+                      <Icon name={p.emoji} size={20} style={{ color: "#fff" }} />
                     </span>
-                    <div className="flex-1 overflow-hidden">
-                      <div className="flex items-center gap-2">
-                        <h3 className="truncate font-display text-[16px] font-bold text-[var(--primary)] group-hover:text-[var(--primary-mid)]">
-                          {p.name}
-                        </h3>
-                        {live && <span className="synelia-live-pill">En direct</span>}
-                      </div>
-                      <p className="mt-1 line-clamp-2 font-body text-[12px] text-[var(--text-muted)]">
-                        {p.desc}
-                      </p>
-                    </div>
+                    <h3>{p.name}</h3>
                   </div>
-                  <div className="mt-auto flex items-center gap-4 border-t border-[var(--border)] pt-3 font-body text-[11px] text-[var(--text-muted)]">
-                    <span className="flex items-center gap-1.5">
-                      <MessageSquareIcon className="size-3.5" /> {p.chats}
+                  <p className="desc">{p.desc}</p>
+                  <div className="foot">
+                    <span className="stat">
+                      <MessageSquareIcon size={12} />
+                      {p.chats}
                     </span>
-                    <span className="flex items-center gap-1.5">
-                      <FileTextIcon className="size-3.5" /> {p.artifacts}
+                    <span className="stat">
+                      <FileTextIcon size={12} />
+                      {p.artifacts}
                     </span>
-                    <span className="ml-auto">
+                    <span className="members">
                       <AvatarStack ids={p.members} max={4} size={24} />
                     </span>
                   </div>
@@ -142,90 +130,81 @@ export default async function HomePage() {
           </div>
         </div>
 
-        {/* Right column — recent conversations + routines */}
-        <div className="flex flex-col gap-8 lg:col-span-4">
-          <div>
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="font-display text-[18px] font-bold text-[var(--primary)]">
-                Conversations récentes
-              </h2>
+        {/* RIGHT: recent conversations + active routines */}
+        <div>
+          {/* Recent conversations */}
+          <div className="activity-card" style={{ marginBottom: 22 }}>
+            <div className="ah">
+              <p className="col-title" style={{ margin: 0 }}>Conversations récentes</p>
+              {liveCount > 0 && (
+                <span className="pill pill-live" style={{ marginLeft: "auto" }}>
+                  <span className="d" />
+                  {liveCount} en direct
+                </span>
+              )}
             </div>
-            <ul className="flex flex-col divide-y divide-[var(--border-soft)] rounded-lg border border-[var(--border)] bg-white">
-              {recentChats.map((c) => {
-                const who = getMember(c.lastBy);
-                return (
-                  <li className="flex items-start gap-3 px-4 py-3" key={c.id}>
-                    <span
-                      className="flex size-8 shrink-0 items-center justify-center rounded-md"
-                      style={{ background: "var(--secondary)", color: "var(--primary)" }}
-                    >
-                      {c.live ? (
-                        <SparklesIcon className="size-4" />
-                      ) : (
-                        <MessageSquareIcon className="size-4" />
+            {recentChats.map((c) => {
+              const who = getMember(c.lastBy);
+              return (
+                <div key={c.id} className="act-item">
+                  <span
+                    className="av sq"
+                    style={{
+                      width: 34, height: 34,
+                      background: c.live ? "rgba(192,41,122,0.1)" : "rgba(75,40,130,0.08)",
+                      color: c.live ? "var(--color-accent)" : "var(--color-primary)",
+                    }}
+                  >
+                    <MessageSquareIcon size={15} />
+                  </span>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div className="txt">
+                      <b>{c.title}</b>
+                      {c.liveState === "ai-typing" && (
+                        <span className="act-live"> · L&apos;IA répond</span>
                       )}
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2">
-                        <span className="truncate font-display text-[13px] font-semibold text-[var(--foreground)]">
-                          {c.title}
-                        </span>
-                        {c.liveState === "ai-typing" && (
-                          <span className="synelia-live-pill">L&rsquo;IA répond</span>
-                        )}
-                      </div>
-                      <p className="mt-0.5 line-clamp-1 font-body text-[11px] text-[var(--text-muted)]">
-                        {projectNameOf(c.project)}
-                        {c.liveState === "user-typing" && who
-                          ? ` · ${who.name.split(" ")[0]} écrit…`
-                          : ` · ${c.updated}`}
-                      </p>
                     </div>
-                  </li>
-                );
-              })}
-            </ul>
+                    <div className="when">
+                      <span>{projectNameOf(c.project)}</span>
+                      {c.liveState === "user-typing" && who
+                        ? <span> · {who.name.split(" ")[0]} écrit…</span>
+                        : <span> · {c.updated}</span>}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
 
-          <div>
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="font-display text-[18px] font-bold text-[var(--primary)]">
-                Routines actives
-              </h2>
-              <Link
-                className="font-body text-[12px] font-semibold text-[var(--primary)] hover:underline"
-                href="/routines"
-              >
-                Tout voir &rarr;
+          {/* Active routines */}
+          <div className="activity-card">
+            <div className="ah">
+              <p className="col-title" style={{ margin: 0 }}>Routines actives</p>
+              <Link className="more" href="/routines" style={{ marginLeft: "auto", fontSize: 12, color: "var(--color-primary-mid)", fontWeight: 600 }}>
+                Tout voir
               </Link>
             </div>
-            <ul className="flex flex-col divide-y divide-[var(--border-soft)] rounded-lg border border-[var(--border)] bg-white">
-              {activeRoutines.map((r) => (
-                <li className="flex items-center gap-3 px-4 py-3" key={r.id}>
-                  <span
-                    className="flex size-8 shrink-0 items-center justify-center rounded-md"
-                    style={{ background: "var(--secondary)", color: "var(--primary)" }}
-                  >
-                    <Icon className="size-4" name={r.icon} />
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <Link
-                      className="block truncate font-display text-[13px] font-semibold text-[var(--foreground)] hover:text-[var(--primary)]"
-                      href={`/routines?id=${r.id}`}
-                    >
-                      {r.title}
-                    </Link>
-                    <p className="mt-0.5 truncate font-body text-[11px] text-[var(--text-muted)]">
-                      {r.cadence}
-                    </p>
-                  </div>
-                  <RepeatIcon className="size-3.5 shrink-0 text-[var(--text-muted)]" />
-                </li>
-              ))}
-            </ul>
+            {activeRoutines.map((r) => (
+              <Link key={r.id} href={`/routines?id=${r.id}`} className="routine-row" style={{ display: "flex" }}>
+                <span className="r-ic">
+                  <Icon name={r.icon} size={16} />
+                </span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div className="r-name">{r.title}</div>
+                  <div className="r-cad">{r.cadence}</div>
+                </div>
+                <div className="r-next">
+                  <div className="lbl">Prochaine</div>
+                  <div className="val">{r.next}</div>
+                </div>
+              </Link>
+            ))}
+            {activeRoutines.length === 0 && (
+              <div className="empty">Aucune routine active.</div>
+            )}
           </div>
         </div>
-      </section>
+      </div>
     </div>
   );
 }

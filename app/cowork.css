@@ -137,6 +137,8 @@ input, textarea { font-family: inherit; }
 .tb-icon .dotn { position: absolute; top: 5px; right: 5px; width: 7px; height: 7px; border-radius: 50%; background: var(--color-accent); box-shadow: 0 0 0 2px #fff; }
 
 .content { flex: 1; overflow-y: auto; min-height: 0; }
+/* Chat workspace fills the entire content area — disable scroll, pass height to chat-col */
+.content:has(.chat-main) { overflow: hidden; display: flex; flex-direction: column; }
 
 /* ============================================================
    AVATARS / PRESENCE
@@ -781,6 +783,7 @@ input, textarea { font-family: inherit; }
 
   /* en conversation, la barre de chat suffit — on masque la topbar */
   .main-wrap:has(.chat-main) .topbar { display: none; }
+
 
   /* DASHBOARD */
   .dash { padding: 22px 16px 44px; }

@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import {
   BookOpenIcon,
   FileTextIcon,
@@ -8,12 +10,15 @@ import {
   RepeatIcon,
   Share2Icon,
   UsersIcon,
+  SendIcon,
+  SparklesIcon,
 } from "lucide-react";
 import Link from "next/link";
-import { SyneliaRule } from "@/components/synelia-rule";
 import { Avatar, AvatarStack } from "@/components/synelia/avatar";
 import { Icon } from "@/components/synelia/icon";
+import { NewChatButton } from "@/components/shell/new-chat-button";
 import {
+  ensureLoaded,
   getMember,
   getProject,
   getProjectArtifacts,
@@ -23,16 +28,23 @@ import {
   getProjectRoutines,
   KIND_TEXT,
   KIND_VAR,
-} from "@/lib/synelia/data";
+} from "@/lib/synelia/queries";
 
 type TabKey = "conversations" | "artifacts" | "connaissances" | "routines" | "team";
 
-const TABS: { key: TabKey; label: string; Icon: typeof MessageSquareIcon }[] = [
-  { key: "conversations", label: "Conversations", Icon: MessageSquareIcon },
-  { key: "artifacts", label: "Artefacts", Icon: FileTextIcon },
-  { key: "connaissances", label: "Connaissances", Icon: BookOpenIcon },
-  { key: "routines", label: "Routines", Icon: RepeatIcon },
-  { key: "team", label: "Équipe", Icon: UsersIcon },
+const TABS: { key: TabKey; label: string; icon: string }[] = [
+  { key: "conversations", label: "Conversations", icon: "message-square" },
+  { key: "artifacts", label: "Artefacts", icon: "file-text" },
+  { key: "connaissances", label: "Connaissances", icon: "folder-kanban" },
+  { key: "routines", label: "Routines", icon: "repeat" },
+  { key: "team", label: "Équipe", icon: "users" },
+];
+
+const SUGGEST_CHIPS = [
+  { label: "Rédiger une synthèse", icon: "file-text" },
+  { label: "Analyser les risques", icon: "shield-check" },
+  { label: "Préparer un COPIL", icon: "list-checks" },
+  { label: "Veille secteur", icon: "radar" },
 ];
 
 export default async function ProjectViewPage({
@@ -42,26 +54,21 @@ export default async function ProjectViewPage({
   params: Promise<{ slug: string }>;
   searchParams: Promise<{ tab?: string }>;
 }) {
+  await ensureLoaded();
   const { slug } = await params;
   const { tab } = await searchParams;
   const project = getProject(slug);
 
   if (!project) {
     return (
-      <div className="mx-auto max-w-3xl px-10 py-20 text-center">
-        <h1 className="font-display text-[24px] font-bold text-[var(--primary)]">
-          Projet introuvable
-        </h1>
-        <p className="mt-2 font-body text-[14px] text-[var(--text-muted)]">
-          Aucun projet ne correspond à{" "}
-          <code className="rounded bg-[var(--secondary)] px-1.5 py-0.5 font-mono text-[12px]">
-            {slug}
-          </code>
-          .
+      <div style={{ maxWidth: 720, margin: "0 auto", padding: "80px 40px", textAlign: "center" }}>
+        <h1>Projet introuvable</h1>
+        <p style={{ color: "var(--color-text-muted)", marginTop: 8 }}>
+          Aucun projet ne correspond à <code>{slug}</code>.
         </p>
         <Link
-          className="mt-6 inline-block font-body text-[13px] font-semibold text-[var(--primary)] hover:underline"
           href="/"
+          style={{ display: "inline-block", marginTop: 24, fontSize: 13, fontWeight: 600, color: "var(--color-primary)" }}
         >
           &larr; Retour au tableau de bord
         </Link>
@@ -74,6 +81,7 @@ export default async function ProjectViewPage({
   const files = getProjectFiles(project.id);
   const routines = getProjectRoutines(project.id);
   const members = getProjectMembers(project.id);
+
   const counts: Record<TabKey, number> = {
     conversations: chats.length,
     artifacts: artifacts.length,
@@ -84,79 +92,65 @@ export default async function ProjectViewPage({
   const active: TabKey = TABS.some((t) => t.key === tab) ? (tab as TabKey) : "conversations";
 
   return (
-    <div className="mx-auto max-w-[1280px] px-10 py-10">
-      {/* HEADER */}
-      <header className="flex items-start gap-5">
-        <span
-          className="flex size-14 shrink-0 items-center justify-center rounded-md text-white"
-          style={{ background: project.color }}
-        >
-          <Icon className="size-6" name={project.emoji} />
-        </span>
-        <div className="flex-1">
-          <h1 className="font-display text-[32px] font-bold leading-tight text-[var(--primary)]">
-            {project.name}
-          </h1>
-          <p className="mt-1 font-body text-[14px] text-[var(--text-muted)]">
-            {project.desc}
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          <span className="synelia-visibility">
-            {project.public ? (
-              <>
-                <GlobeIcon className="size-3" /> Public
-              </>
-            ) : (
-              <>
-                <LockIcon className="size-3" /> Privé
-              </>
-            )}
+    <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+      {/* PROJECT HEADER */}
+      <div className="projhead">
+        <div className="ph-top">
+          <span
+            className="p-ic"
+            style={{ background: project.color }}
+          >
+            <Icon name={project.emoji} size={22} style={{ color: "#fff" }} />
           </span>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <h1>{project.name}</h1>
+            <p className="ph-desc">{project.desc}</p>
+          </div>
+          <button
+            className="viz-badge"
+            type="button"
+            aria-label="Visibilité du projet"
+          >
+            {project.public ? (
+              <><GlobeIcon size={13} /> Public</>
+            ) : (
+              <><LockIcon size={13} /> Privé</>
+            )}
+          </button>
           <AvatarStack ids={project.members} max={4} size={30} />
-          <button className="synelia-btn synelia-btn-ghost h-9 px-3 text-[12px]" type="button">
-            Inviter
-          </button>
-          <button className="synelia-btn synelia-btn-primary h-9 px-4 text-[12px]" type="button">
-            <PlusIcon className="size-4" />
-            Nouvelle conversation
-          </button>
+          <div className="ph-actions">
+            <button className="btn btn-ghost btn-sm" type="button">
+              <UsersIcon size={14} />
+              Inviter
+            </button>
+            <NewChatButton />
+          </div>
         </div>
-      </header>
-      <SyneliaRule />
 
-      {/* TABS */}
-      <nav
-        aria-label="Onglets du projet"
-        className="mt-4 flex items-center gap-1 border-b border-[var(--border)]"
-      >
-        {TABS.map((t) => {
-          const isActive = t.key === active;
-          return (
-            <Link
-              className={`flex items-center gap-2 border-b-2 px-4 py-3 font-body text-[13px] font-semibold transition-colors ${
-                isActive
-                  ? "border-[var(--accent)] text-[var(--primary)]"
-                  : "border-transparent text-[var(--text-muted)] hover:text-[var(--primary)]"
-              }`}
-              href={`/w/${project.id}?tab=${t.key}`}
-              key={t.key}
-            >
-              <t.Icon className="size-4" />
-              {t.label}
-              <span
-                className="ml-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 font-mono text-[10px] font-bold"
-                style={{ background: "var(--secondary)", color: "var(--text-sub)" }}
+        {/* TABS */}
+        <div className="ph-tabs">
+          {TABS.map((t) => {
+            const isActive = t.key === active;
+            return (
+              <Link
+                key={t.key}
+                href={`/w/${project.id}?tab=${t.key}`}
+                className={`ph-tab${isActive ? " active" : ""}`}
               >
-                {counts[t.key]}
-              </span>
-            </Link>
-          );
-        })}
-      </nav>
+                <Icon name={t.icon} size={14} />
+                {t.label}
+                <span className="n">{counts[t.key]}</span>
+              </Link>
+            );
+          })}
+        </div>
+      </div>
 
-      <div className="mt-8">
-        {active === "conversations" && <ConversationsPane chats={chats} />}
+      {/* TAB CONTENT */}
+      <div style={{ flex: 1, overflow: "auto" }}>
+        {active === "conversations" && (
+          <ConversationsPane chats={chats} projectId={project.id} />
+        )}
         {active === "artifacts" && <ArtifactsPane artifacts={artifacts} />}
         {active === "connaissances" && <FilesPane files={files} />}
         {active === "routines" && <RoutinesPane routines={routines} />}
@@ -166,97 +160,211 @@ export default async function ProjectViewPage({
   );
 }
 
-function ConversationsPane({ chats }: { chats: ReturnType<typeof getProjectChats> }) {
-  if (chats.length === 0) {
-    return <EmptyState label="Aucune conversation dans ce projet pour le moment." />;
-  }
+function ConversationsPane({
+  chats,
+  projectId,
+}: {
+  chats: ReturnType<typeof getProjectChats>;
+  projectId: string;
+}) {
   return (
-    <ul className="flex max-w-[920px] flex-col divide-y divide-[var(--border-soft)] rounded-lg border border-[var(--border)] bg-white">
-      {chats.map((c) => {
-        const who = getMember(c.lastBy);
-        return (
-          <li className="flex items-center gap-4 px-5 py-4" key={c.id}>
-            <span
-              className="flex size-10 shrink-0 items-center justify-center rounded-md"
-              style={{ background: "var(--secondary)", color: "var(--primary)" }}
-            >
-              <MessageSquareIcon className="size-4" />
-            </span>
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-2">
-                <span className="truncate font-display text-[14px] font-semibold text-[var(--foreground)]">
-                  {c.title}
-                </span>
-                {c.pinned && (
-                  <span className="font-body text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">
-                    Épinglé
+    <div className="proj-home">
+      {/* COMPOSER */}
+      <div className="home-composer">
+        <textarea
+          className="home-composer"
+          placeholder="Démarrez une nouvelle conversation dans ce projet…"
+          rows={2}
+          style={{ border: "none", outline: "none", resize: "none", width: "100%", background: "none", fontSize: 15 }}
+        />
+        <div className="home-cbar">
+          <button className="home-send" type="button" aria-label="Envoyer" disabled>
+            <SendIcon size={17} />
+          </button>
+        </div>
+      </div>
+
+      {/* SUGGEST CHIPS */}
+      <div className="home-suggests">
+        {SUGGEST_CHIPS.map((chip) => (
+          <button
+            key={chip.label}
+            type="button"
+            className="suggest-chip"
+          >
+            <span className="ic"><SparklesIcon size={13} /></span>
+            {chip.label}
+          </button>
+        ))}
+      </div>
+
+      {/* CHAT LIST */}
+      {chats.length > 0 && (
+        <div className="home-recents">
+          <div className="rec-head">
+            <h3>Conversations</h3>
+            <span className="n">{chats.length}</span>
+          </div>
+          <div className="chat-list" style={{ padding: 0, margin: 0 }}>
+            {chats.map((c) => {
+              const who = getMember(c.lastBy);
+              return (
+                <div
+                  key={c.id}
+                  className={`chat-row${c.live ? " live" : ""}`}
+                >
+                  <span className="cr-ic">
+                    <MessageSquareIcon size={17} />
                   </span>
-                )}
-                {c.liveState === "ai-typing" && (
-                  <span className="synelia-live-pill">L&rsquo;IA répond</span>
-                )}
-                {c.liveState === "user-typing" && who && (
-                  <span className="synelia-live-pill">{who.name.split(" ")[0]} écrit</span>
-                )}
-              </div>
-              <p className="mt-1 line-clamp-1 font-body text-[12px] text-[var(--text-muted)]">
-                <span className="font-semibold text-[var(--text-sub)]">
-                  {who?.name ?? c.lastBy}
-                </span>{" "}
-                &middot; {c.preview}
-              </p>
-            </div>
-            <div className="flex shrink-0 items-center gap-3">
-              <AvatarStack ids={c.participants} max={3} size={24} />
-              <span className="font-body text-[11px] text-[var(--text-muted)]">
-                {c.updated}
-              </span>
-            </div>
-          </li>
-        );
-      })}
-    </ul>
+                  <div className="cr-body">
+                    <div className="cr-title">
+                      {c.title}
+                      {c.pinned && (
+                        <span style={{ fontSize: 10, fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                          Épinglé
+                        </span>
+                      )}
+                      {c.liveState === "ai-typing" && (
+                        <span className="live-mini">
+                          <span className="dots"><i /><i /><i /></span>
+                          L&apos;IA répond
+                        </span>
+                      )}
+                    </div>
+                    <div className="cr-prev">
+                      {who?.name.split(" ")[0] ?? c.lastBy} &middot; {c.preview}
+                    </div>
+                  </div>
+                  <div className="cr-right">
+                    <span className="cr-when">{c.updated}</span>
+                    <AvatarStack ids={c.participants} max={3} size={22} />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {chats.length === 0 && (
+        <div className="empty" style={{ marginTop: 32 }}>
+          Aucune conversation dans ce projet pour le moment.
+        </div>
+      )}
+    </div>
   );
 }
 
-function ArtifactsPane({ artifacts }: { artifacts: ReturnType<typeof getProjectArtifacts> }) {
+function ArtifactsPane({
+  artifacts,
+}: {
+  artifacts: ReturnType<typeof getProjectArtifacts>;
+}) {
   if (artifacts.length === 0) {
-    return <EmptyState label="Aucun artefact généré dans ce projet pour le moment." />;
+    return (
+      <div style={{ padding: "32px 36px" }}>
+        <EmptyState label="Aucun artefact généré dans ce projet pour le moment." />
+      </div>
+    );
   }
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-      {artifacts.map((a) => (
-        <Link
-          className="group flex min-h-[160px] flex-col gap-2 rounded-lg border border-[var(--border)] bg-white p-4 transition-all hover:border-[var(--primary-mid)] hover:shadow-[var(--shadow-md)]"
-          href={`/a/${a.id}`}
-          key={a.id}
-        >
-          <div className="flex items-start justify-between">
-            <span
-              className="synelia-kind-chip"
-              style={{ background: KIND_VAR[a.kind], color: KIND_TEXT[a.kind] }}
-            >
-              {a.kind}
-            </span>
-            {a.live && <span className="synelia-live-pill">En cours</span>}
+    <div style={{ padding: "24px 32px 60px" }}>
+      <div className="artg-grid">
+        {artifacts.map((a) => {
+          const icClass = a.kind === "Document" ? "k-doc" : a.kind === "Tableur" ? "k-sheet" : "k-diag";
+          return (
+            <Link key={a.id} href={`/a/${a.id}`} className="artg-card">
+              <div className="agc-top">
+                <span className={`agc-ic ${icClass}`}>
+                  <Icon name={a.icon} size={20} />
+                </span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div className="agc-title">{a.title}</div>
+                  <div className="agc-kind">
+                    <span className={`kind-chip ${icClass}`}>{a.kind}</span>
+                    {a.live && <span className="pill pill-live" style={{ padding: "2px 9px", fontSize: "10.5px" }}><span className="d" />En cours</span>}
+                  </div>
+                </div>
+              </div>
+              <div className="agc-foot">
+                <span className="agc-by">
+                  <Avatar id={a.creator} size={22} />
+                  {getMember(a.creator)?.name.split(" ")[0] ?? a.creator}
+                  <span className="dotsep">·</span>
+                  {a.when}
+                </span>
+                {a.shared && (
+                  <span className="agc-shared">
+                    <Share2Icon size={12} />
+                    Partagé
+                  </span>
+                )}
+              </div>
+            </Link>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function FilesPane({ files }: { files: ReturnType<typeof getProjectFiles> }) {
+  if (files.length === 0) {
+    return (
+      <div style={{ padding: "32px 36px" }}>
+        <EmptyState label="Aucun fichier de connaissances dans ce projet." />
+      </div>
+    );
+  }
+  return (
+    <div style={{ padding: "24px 32px 60px", maxWidth: 920 }}>
+      {files.map((f) => (
+        <div key={f.id} className={`file-row`}>
+          <span className={`f-ic ${f.type}`}>
+            <Icon name={f.icon} size={16} />
+          </span>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div className="f-name">{f.name}</div>
+            <div className="f-meta">
+              {getMember(f.by)?.name.split(" ")[0] ?? f.by} &middot; {f.when}
+            </div>
           </div>
-          <h3 className="line-clamp-2 font-display text-[14px] font-semibold text-[var(--primary)] group-hover:text-[var(--primary-mid)]">
-            {a.title}
-          </h3>
-          <div className="mt-auto flex items-center gap-2 font-body text-[10px] text-[var(--text-muted)]">
-            <Avatar id={a.creator} size={20} />
-            <span className="font-semibold text-[var(--text-sub)]">
-              {getMember(a.creator)?.name.split(" ")[0] ?? a.creator}
-            </span>
-            <span aria-hidden>&middot;</span>
-            <span>{a.when}</span>
-            {a.shared && (
-              <Share2Icon
-                aria-label="Lien de partage actif"
-                className="ml-auto size-3"
-                style={{ color: "var(--success)" }}
-              />
-            )}
+          <span style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--color-text-muted)" }}>
+            {f.size}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function RoutinesPane({ routines }: { routines: ReturnType<typeof getProjectRoutines> }) {
+  if (routines.length === 0) {
+    return (
+      <div style={{ padding: "32px 36px" }}>
+        <EmptyState label="Aucune routine configurée dans ce projet." />
+      </div>
+    );
+  }
+  return (
+    <div style={{ padding: "24px 32px 60px", maxWidth: 920 }}>
+      {routines.map((r) => (
+        <Link
+          key={r.id}
+          href={`/routines?id=${r.id}`}
+          className="routine-row"
+          style={{ textDecoration: "none" }}
+        >
+          <span className="r-ic">
+            <Icon name={r.icon} size={16} />
+          </span>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div className="r-name">{r.title}</div>
+            <div className="r-cad">{r.cadence}</div>
+          </div>
+          <div className="r-next">
+            <div className="lbl">Prochaine</div>
+            <div className="val">{r.next}</div>
           </div>
         </Link>
       ))}
@@ -264,130 +372,42 @@ function ArtifactsPane({ artifacts }: { artifacts: ReturnType<typeof getProjectA
   );
 }
 
-function FilesPane({ files }: { files: ReturnType<typeof getProjectFiles> }) {
-  if (files.length === 0) {
-    return <EmptyState label="Aucun fichier de connaissances dans ce projet." />;
-  }
-  return (
-    <ul className="flex max-w-[920px] flex-col divide-y divide-[var(--border-soft)] rounded-lg border border-[var(--border)] bg-white">
-      {files.map((f) => (
-        <li className="flex items-center gap-4 px-5 py-3.5" key={f.id}>
-          <span
-            className="flex size-9 shrink-0 items-center justify-center rounded-md"
-            style={{ background: "var(--secondary)", color: "var(--primary)" }}
-          >
-            <Icon className="size-4" name={f.icon} />
-          </span>
-          <div className="min-w-0 flex-1">
-            <div className="truncate font-body text-[13px] font-semibold text-[var(--foreground)]">
-              {f.name}
-            </div>
-            <div className="font-body text-[11px] text-[var(--text-muted)]">
-              {getMember(f.by)?.name.split(" ")[0] ?? f.by} &middot; {f.when}
-            </div>
-          </div>
-          <span className="shrink-0 font-mono text-[11px] text-[var(--text-muted)]">
-            {f.size}
-          </span>
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-function RoutinesPane({ routines }: { routines: ReturnType<typeof getProjectRoutines> }) {
-  if (routines.length === 0) {
-    return <EmptyState label="Aucune routine configurée dans ce projet." />;
-  }
-  return (
-    <ul className="flex max-w-[920px] flex-col gap-3">
-      {routines.map((r) => (
-        <li key={r.id}>
-          <Link
-            className="flex items-center gap-4 rounded-lg border border-[var(--border)] bg-white px-5 py-4 transition-all hover:border-[var(--primary-mid)] hover:shadow-[var(--shadow-sm)]"
-            href={`/routines?id=${r.id}`}
-          >
-            <span
-              className="flex size-10 shrink-0 items-center justify-center rounded-md text-white"
-              style={{ background: "var(--primary)" }}
-            >
-              <Icon className="size-4" name={r.icon} />
-            </span>
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-2">
-                <span className="truncate font-display text-[14px] font-semibold text-[var(--foreground)]">
-                  {r.title}
-                </span>
-                <StatusBadge status={r.status} />
-              </div>
-              <p className="mt-0.5 font-body text-[12px] text-[var(--text-muted)]">
-                {r.cadence} &middot; prochaine : {r.next}
-              </p>
-            </div>
-          </Link>
-        </li>
-      ))}
-    </ul>
-  );
-}
-
 function TeamPane({ memberIds }: { memberIds: string[] }) {
   const members = memberIds.map((id) => getMember(id)).filter(Boolean);
   return (
-    <ul className="flex max-w-[920px] flex-col divide-y divide-[var(--border-soft)] rounded-lg border border-[var(--border)] bg-white">
+    <div style={{ padding: "24px 32px 60px", maxWidth: 920 }}>
       {members.map(
         (m) =>
           m && (
-            <li className="flex items-center gap-4 px-5 py-4" key={m.id}>
+            <div key={m.id} className="part-row" style={{ borderBottom: "1px solid var(--color-border-soft)" }}>
               <Avatar id={m.id} size={40} />
-              <div className="min-w-0 flex-1">
-                <div className="font-display text-[14px] font-semibold text-[var(--foreground)]">
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div className="p-name">
                   {m.name}
                   {m.you && (
-                    <span className="ml-2 font-body text-[11px] text-[var(--text-muted)]">
+                    <span style={{ marginLeft: 8, fontSize: 11, color: "var(--color-text-muted)" }}>
                       (vous)
                     </span>
                   )}
                 </div>
-                <div className="font-body text-[12px] text-[var(--text-muted)]">
-                  {m.title}
-                </div>
+                <div className="p-title">{m.title}</div>
               </div>
               <span
-                className="rounded-full px-3 py-1 font-body text-[11px] font-semibold"
-                style={{
-                  background: m.role === "Propriétaire" ? "var(--primary)" : "var(--secondary)",
-                  color: m.role === "Propriétaire" ? "#fff" : "var(--text-sub)",
-                }}
+                className={`role-badge ${m.role === "Propriétaire" ? "owner" : "member"}`}
               >
                 {m.role}
               </span>
-            </li>
+            </div>
           )
       )}
-    </ul>
-  );
-}
-
-function StatusBadge({ status }: { status: "active" | "paused" }) {
-  const isActive = status === "active";
-  return (
-    <span
-      className="rounded-full px-2 py-0.5 font-body text-[10px] font-bold uppercase tracking-wider"
-      style={{
-        background: isActive ? "rgba(0,196,140,0.12)" : "var(--secondary)",
-        color: isActive ? "#00936A" : "var(--text-muted)",
-      }}
-    >
-      {isActive ? "Active" : "En pause"}
-    </span>
+    </div>
   );
 }
 
 function EmptyState({ label }: { label: string }) {
   return (
-    <div className="flex items-center justify-center rounded-lg border border-dashed border-[var(--border)] bg-white px-6 py-16">
-      <p className="font-body text-[13px] text-[var(--text-muted)]">{label}</p>
+    <div className="empty" style={{ border: "1.5px dashed var(--color-border)", borderRadius: "var(--radius-md)", padding: "60px 20px" }}>
+      {label}
     </div>
   );
 }
