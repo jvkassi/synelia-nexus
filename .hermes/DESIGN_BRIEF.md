@@ -1,5 +1,11 @@
 # Synelia Nexus — Design Brief (source: Synelia Cowork)
 
+> **Superseded by `.hermes/DESIGN_HANDOFF.md`** (2026-06-09 — the user dropped a
+> `Claude cowork-handoff.zip` containing the full hi-fi React prototype + 7 chat
+> transcripts + admin console). This file remains as a quick reference for the
+> tokens, but **the new bundle is the canonical spec** for what to build. Do not
+> start work from this file — read the handoff.
+>
 > Reference: `~/cache/documents/doc_87cc885871ab_Claude cowork.zip` (cloned at `/tmp/cc-zip/`)
 > Author: Olive, 2026-06-09 — direction the UI should evolve toward.
 

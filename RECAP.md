@@ -247,4 +247,96 @@ connector.
    composes through the same handler. The `buildWorkspaceTools()`
    factory takes the IDs and scopes the tools.
 
+---
+
+## 2026-06-09 — Cowork design handoff received
+
+The user dropped a `Claude cowork-handoff.zip` (851 KB) on the working tree
+(`~/cache/documents/doc_833cc086e695_Claude cowork-handoff.zip`). Contents: **7
+chat transcripts** (the iterative Claude Design session, 2026-06-05 →
+2026-06-09), a **complete hi-fi React/JSX prototype** (4 HTML wrappers, 16
+JSX files, 3 CSS files, 360 lines of mock data, ~4,500 lines of source
+in-scope), and a **standalone admin console** (8 JSX files, ~1,500 lines).
+
+This bundle **is** the design spec. It's not a "consider this design"
+suggestion — it's the output of 7 design iterations between the user and
+Claude Design, and the final chat7 includes the canonical kickoff prompt
+to start the implementation.
+
+The prior `.hermes/DESIGN_BRIEF.md` was extracted from the **3-zip
+prototype** (the earlier, smaller version of this bundle). The new
+handoff supersedes it. The full inventory + port plan is in
+`.hermes/DESIGN_HANDOFF.md`. The execution plan is in `.hermes/kanban.md`.
+
+### What changed in direction
+
+- **Substrate stays Next.js.** Chat7 suggested React + TypeScript + Vite +
+  React Router, but the user clarified: **"we must continue nextjs, but
+  strctier follow cowork html decisions, components, close like pixel
+  replicate"**. So we port the Cowork UI into the existing Next.js shell
+  pixel-for-pixel, keeping the deeper auth + DB + worker substrate.
+- **The 5 project tabs win.** The current 5-tab project view
+  (Conversations / Artefacts / Connaissances / Routines / Équipe) is the
+  right shape — the handoff uses the same. We just need to rebuild the
+  content of each tab to match the prototype.
+- **The 3 chat layouts** (centered / canvas / wide) — we ship all 3 in
+  CSS, default `centered`. The Tweaks panel itself is out of scope (it's
+  a designer's playground).
+- **The Claude-cowork-style project Conversations tab** — big composer
+  up top with 4 suggestion chips, then the chat list. Not a list of
+  "conversations" with a tiny "+ New" button.
+- **7 modals** — `NewProjectModal` (no icon, no color — palette picks
+  automatically), `InviteModal`, `NewChatModal`, `NewPromptModal`,
+  `UsePromptModal`, `VisibilityModal`, `ArtifactModal` +
+  `ShareArtifactModal`.
+- **Realtime "en direct" indicators** are the heart of the product. Live
+  AI streaming, steering (interrupt + re-orient), copresence banner,
+  ghost typing, live artifact build (the risk matrix fills row by row as
+  the AI streams), LivePill on chat list and project card, sidebar
+  project live dot.
+- **No "en ligne" presence chrome** — stripped per the user in chat1.
+  Topbar counter, sidebar presence block, green dots on avatars, "en
+  ligne" mentions — all gone. "En direct" stays because it's the
+  realtime core.
+
+### What stays
+
+- All the existing depth: NextAuth v5, Drizzle schema, the `/api/chat`
+  route scaffold (currently 501-stubbed, will be wired to the chat
+  simulator in Phase 4.6), the worker + Redis for scheduled tasks, the
+  opencode-go provider, the Traefik + Dokploy deploy.
+- The 4 routes already in place: `/login`, `/register`, `/`, `/artifacts`,
+  `/w/[slug]`. Each will be **rebuilt in place** during the phase
+  rollout, not added as new routes.
+
+### What the port touches (estimated)
+
+- **Replace** `app/globals.css` with the handoff's `tokens.css` (~130
+  lines).
+- **Add** `app/cowork.css` with the handoff's `app.css` (~860 lines) +
+  `login.css` (177) + `admin.css` (204).
+- **Replace** `lib/synelia/data.ts` with the full `data.js` content
+  (~360 lines, fully typed).
+- **Rebuild** `components/shell/sidebar.tsx` (the current one is basic)
+  and add `components/shell/topbar.tsx`.
+- **Add** `components/synelia/avatar.tsx`, `components/synelia/modals.tsx`,
+  `components/synelia/rich-text.tsx`.
+- **Rebuild** `app/(app)/page.tsx` (dashboard) and `app/(app)/w/[slug]/page.tsx`
+  (project).
+- **Add** `app/(app)/library/page.tsx`, `app/(app)/routines/page.tsx`.
+- **Add** `app/(app)/w/[slug]/t/[id]/page.tsx` (chat workspace — the
+  big one).
+- **Add** `app/(admin)/` route group for the 5 admin tabs.
+
+### Gotchas (recorded so we don't trip on them)
+
+- CSS prefix `ad-` collides with ad-blockers in preview envs. Admin
+  console must use `adm-`.
+- `SYN.RISK_ROWS` must be on the global SYN object before the chat reads
+  it, or the stream loop throws.
+- Modal state leaks between artifacts unless you set `key={artifact.id}`.
+- `cancelStream` for chat interrupt must be a `useRef`, not state.
+- No emoji in the UI. No gradients. Violet-tinted shadows only. French
+  copy with vouvoiement throughout.
+
 — Olive
