@@ -1,8 +1,9 @@
+/* Synelia Cowork — Webfonts (Google Fonts CDN). Must precede all
+ * non-@charset/@layer rules per CSS spec. */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Open+Sans:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap');
+
 @import "tailwindcss";
 @import "katex/dist/katex.min.css";
-
-/* Synelia Cowork — Webfonts (Google Fonts CDN) */
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Open+Sans:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap');
 
 @source "../../node_modules/streamdown/dist/index.js";
 @source "../components/ai-elements/**/*.{ts,tsx}";
