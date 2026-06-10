@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-label="Synelia">
-  <!-- Compact Synelia mark — favicon / avatar tile. Violet rounded square,
-       white S, magenta accent dot. Substitute until the official mark ships. -->
-  <rect width="64" height="64" rx="14" fill="#4B2882"/>
-  <text x="32" y="44" text-anchor="middle" font-family="Montserrat, system-ui, sans-serif" font-weight="700" font-size="38" fill="#FFFFFF">S</text>
-  <circle cx="48" cy="18" r="5" fill="#C0297A"/>
-</svg>

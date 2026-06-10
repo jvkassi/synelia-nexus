@@ -1,19 +1,20 @@
-import { createClient } from "@libsql/client";
 import { config } from "dotenv";
-import { drizzle } from "drizzle-orm/libsql";
-import { migrate } from "drizzle-orm/libsql/migrator";
+import { drizzle } from "drizzle-orm/postgres-js";
+import { migrate } from "drizzle-orm/postgres-js/migrator";
+import postgres from "postgres";
 
-config({ path: ".env.local" });
-config({ path: ".env" });
+config({
+  path: ".env.local",
+});
 
 const runMigrate = async () => {
-  const rawUrl = process.env.DATABASE_URL ?? "file:./data/synelia-nexus.db";
-  const url = /^(file:|libsql:|https?:|wss?:)/.test(rawUrl)
-    ? rawUrl
-    : `file:${rawUrl}`;
+  if (!process.env.POSTGRES_URL) {
+    console.log("POSTGRES_URL not defined, skipping migrations");
+    process.exit(0);
+  }
 
-  const client = createClient({ url });
-  const db = drizzle(client);
+  const connection = postgres(process.env.POSTGRES_URL, { max: 1 });
+  const db = drizzle(connection);
 
   console.log("Running migrations...");
 

@@ -1,193 +1,54 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Open+Sans:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap');
-
-:root {
-  /* ---------- COULEURS PRIMAIRES ---------- */
-  --color-primary:       #4B2882;   /* Synelia Violet — signature */
-  --color-primary-dark:  #2D1557;   /* Violet sombre — sections premium, navbar active */
-  --color-primary-mid:   #6B3FA0;   /* Violet moyen — hover, bordures actives */
-  --color-accent:        #C0297A;   /* Synelia Magenta — accent ponctuel */
-  --color-accent-dark:   #A0206A;   /* Magenta pressé / hover accent */
-
-  /* ---------- NEUTRES ---------- */
-  --color-bg:            #FFFFFF;   /* Fond de page */
-  --color-bg-alt:        #F5F4F8;   /* Sections alternées, lignes paires */
-  --color-text:          #1C1C2E;   /* Corps de texte principal */
-  --color-text-sub:      #3D3550;   /* Sous-titres, encadrés */
-  --color-text-muted:    #9A90A8;   /* Texte secondaire, placeholders */
-  --color-border:        #9A90A8;   /* Bordures structurantes (1px) */
-  --color-border-soft:   #E7E3EE;   /* Bordures douces sur fond clair */
-
-  /* ---------- SÉMANTIQUE / ÉTATS ---------- */
-  --color-success:       #00C48C;   /* Validation, indicateurs positifs */
-  --color-warning:       #FF6B35;   /* Avertissements */
-  --color-error:         #E63946;   /* Erreurs, critiques */
-  --color-info:          #00AEEF;   /* Info (callouts uniquement, voir note) */
-
-  /* Fonds de callouts */
-  --bg-info:             #E8F7FD;
-  --bg-success:          #E6FAF4;
-  --bg-warning:          #FFF3EE;
-  --bg-error:            #FDECEA;
-
-  /* ---------- TYPOGRAPHIE : FAMILLES ---------- */
-  --font-display: 'Montserrat', system-ui, sans-serif;
-  --font-body:    'Open Sans', system-ui, sans-serif;
-  --font-mono:    'JetBrains Mono', ui-monospace, monospace;
-
-  /* ---------- TYPOGRAPHIE : ÉCHELLE (web) ---------- */
-  --text-xs:   0.75rem;   /* 12px — caption */
-  --text-sm:   0.875rem;  /* 14px — code, small */
-  --text-base: 1rem;      /* 16px — body */
-  --text-lg:   1.25rem;   /* 20px — H3 */
-  --text-xl:   1.75rem;   /* 28px — H2 */
-  --text-2xl:  2.5rem;    /* 40px — H1 */
-  --text-3xl:  3.25rem;   /* 52px — hero display */
-
-  --leading-tight: 1.2;
-  --leading-body:  1.6;   /* défaut corps de texte */
-
-  /* ---------- ESPACEMENT (base 8px) ---------- */
-  --space-xs:  4px;
-  --space-sm:  8px;
-  --space-md:  16px;
-  --space-lg:  24px;
-  --space-xl:  32px;
-  --space-2xl: 48px;
-  --space-3xl: 64px;
-
-  /* ---------- RAYONS ---------- */
-  --radius-sm: 4px;   /* boutons, champs */
-  --radius-md: 8px;   /* cartes */
-  --radius-lg: 16px;  /* panneaux, modales */
-  --radius-pill: 999px;
-
-  /* ---------- BORDURES ---------- */
-  --border-width: 1px;
-
-  /* ---------- OMBRES (teinte violet) ---------- */
-  --shadow-sm: 0 1px 3px rgba(45,21,87,0.08);
-  --shadow-md: 0 4px 12px rgba(45,21,87,0.12);
-  --shadow-lg: 0 8px 32px rgba(45,21,87,0.16);
-}
-
-/* ============================================================
-   STYLES SÉMANTIQUES DE BASE
-   ============================================================ */
-
-body {
-  font-family: var(--font-body);
-  font-size: var(--text-base);
-  line-height: var(--leading-body);
-  color: var(--color-text);
-  background: var(--color-bg);
-  -webkit-font-smoothing: antialiased;
-}
-
-h1, h2, h3, h4 {
-  font-family: var(--font-display);
-  color: var(--color-primary);
-  line-height: var(--leading-tight);
-  margin: 0;
-}
-
-h1 { font-size: var(--text-2xl); font-weight: 700; }
-h2 { font-size: var(--text-xl); font-weight: 600; }
-h3 { font-size: var(--text-lg); font-weight: 500; color: var(--color-text-sub); }
-
-p  { margin: 0 0 var(--space-md); text-wrap: pretty; }
-
-small, .caption {
-  font-size: var(--text-xs);
-  color: var(--color-text-muted);
-}
-
-code, pre, .mono {
-  font-family: var(--font-mono);
-  font-size: var(--text-sm);
-}
-
-a { color: var(--color-primary-mid); text-decoration: none; }
-a:hover { color: var(--color-accent); }
-
-em, .quote { font-style: italic; }
-
-/* Trait magenta — motif récurrent de séparation/accent */
-.synelia-rule {
-  width: 56px;
-  height: 3px;
-  background: var(--color-accent);
-  border: none;
-  margin: var(--space-md) 0;
-}
-
-/* Synelia Cowork — Webfonts (Google Fonts CDN). Must precede all
- * non-@charset/@layer rules per CSS spec. */
-
 @import "tailwindcss";
 @import "katex/dist/katex.min.css";
 
-@source "../../node_modules/streamdown/dist/index.js";
-@source "../components/ai-elements/**/*.{ts,tsx}";
+@source "../node_modules/streamdown/dist/index.js";
 
 @custom-variant dark (&:is(.dark, .dark *));
 
 @plugin "tailwindcss-animate";
 @plugin "@tailwindcss/typography";
 
-/* ---------------------------------------------------------------------------
- * Synelia Cowork — design tokens
- * Source of truth: /opt/data/synelia-nexus/DESIGN.md
- * Do NOT add tokens here that aren't in DESIGN.md. To change a token, edit
- * DESIGN.md first.
- * --------------------------------------------------------------------------- */
-
 @theme inline {
-  /* ----- Radii ----- */
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 16px;
-  --radius-pill: 999px;
-  /* Tailwind expects --radius to be the base; keep it for compatibility */
-  --radius: var(--radius-md);
-
-  /* ----- Surfaces (white-led, violet undertone) ----- */
+  --font-sans: var(--font-body);
+  --font-mono: var(--font-mono-brand);
+  --font-display: var(--font-display);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --shadow-sm: 0 1px 3px rgba(45, 21, 87, 0.08);
+  --shadow-md: 0 4px 12px rgba(45, 21, 87, 0.12);
+  --shadow-lg: 0 8px 32px rgba(45, 21, 87, 0.16);
+  --color-magenta: var(--syn-magenta);
+  --color-magenta-dark: var(--syn-magenta-dark);
+  --color-primary-mid: var(--syn-primary-mid);
+  --color-primary-dark: var(--syn-primary-dark);
+  --color-success: var(--syn-success);
+  --color-warning: var(--syn-warning);
+  --color-info: var(--syn-info);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
   --color-popover: var(--popover);
   --color-popover-foreground: var(--popover-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-
-  /* ----- Synelia brand (sRGB hex from DESIGN.md) ----- */
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-primary-dark: var(--primary-dark);
-  --color-primary-mid: var(--primary-mid);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-
-  /* ----- Kind chips (artifact types) ----- */
-  --color-kind-doc: var(--kind-doc);
-  --color-kind-tableur: var(--kind-tableur);
-  --color-kind-diagramme: var(--kind-diagramme);
-  --color-live-pill: var(--live-pill);
-
-  /* ----- Charts (kept neutral, won't actively use) ----- */
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
-
-  /* ----- Sidebar (primary-dark in this product) ----- */
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -196,114 +57,72 @@ em, .quote { font-style: italic; }
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
-
-  /* ----- Fonts ----- */
-  --font-display: var(--font-display);
-  --font-body: var(--font-body);
-  --font-mono: var(--font-mono);
-
-  /* ----- Shadows ----- */
-  --shadow-sm: var(--shadow-sm);
-  --shadow-md: var(--shadow-md);
-  --shadow-lg: var(--shadow-lg);
 }
 
 :root {
-  /* Synelia palette (sRGB hex) */
-  --primary: #4B2882;            /* Synelia Violet — signature */
-  --primary-foreground: #FFFFFF;
-  --primary-dark: #2D1557;       /* Deep violet — sidebar, premium */
-  --primary-mid: #6B3FA0;        /* Mid violet — hover, active borders */
-  --accent: #C0297A;             /* Magenta — single accent */
-  --accent-foreground: #FFFFFF;
+  /* Synelia design tokens — source: design handoff tokens.css */
+  --radius: 0.5rem; /* sm 4px (champs/boutons) · lg 8px (cartes) · 2xl 16px (panneaux/modales) */
+  --background: #ffffff;
+  --foreground: #1c1c2e;
+  --card: #ffffff;
+  --card-foreground: #1c1c2e;
+  --popover: #ffffff;
+  --popover-foreground: #1c1c2e;
+  --primary: #4b2882;
+  --primary-foreground: #ffffff;
+  --secondary: #f5f4f8;
+  --secondary-foreground: #3d3550;
+  --muted: #f5f4f8;
+  --muted-foreground: #9a90a8;
+  /* shadcn --accent = hover bg of menus/items — pale violet tint, NOT magenta
+     (magenta est un accent ponctuel uniquement → --syn-magenta) */
+  --accent: #f0edf6;
+  --accent-foreground: #2d1557;
+  --destructive: #e63946;
+  --border: #e7e3ee;
+  --input: #e7e3ee;
+  --ring: #6b3fa0;
+  --chart-1: #4b2882;
+  --chart-2: #c0297a;
+  --chart-3: #6b3fa0;
+  --chart-4: #00c48c;
+  --chart-5: #ff6b35;
+  /* Sidebar sombre (variante « Projets ») */
+  --sidebar: #2d1557;
+  --sidebar-foreground: rgba(255, 255, 255, 0.78);
+  --sidebar-primary: #6b3fa0;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: rgba(255, 255, 255, 0.08);
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: rgba(255, 255, 255, 0.1);
+  --sidebar-ring: #6b3fa0;
 
-  --background: #FFFFFF;
-  --foreground: #1C1C2E;
-  --card: #FFFFFF;
-  --card-foreground: #1C1C2E;
-  --popover: #FFFFFF;
-  --popover-foreground: #1C1C2E;
-  --secondary: #F5F4F8;
-  --secondary-foreground: #3D3550;
-  --muted: #F5F4F8;
-  --muted-foreground: #9A90A8;
-  --destructive: #E63946;
-  --border: #E0DCE8;
-  --input: #E0DCE8;
-  --ring: #6B3FA0;
+  /* Marque Synelia — accents ponctuels et états */
+  --syn-magenta: #c0297a;
+  --syn-magenta-dark: #a0206a;
+  --syn-primary-mid: #6b3fa0;
+  --syn-primary-dark: #2d1557;
+  --syn-border-strong: #9a90a8;
+  --syn-success: #00c48c;
+  --syn-warning: #ff6b35;
+  --syn-info: #00aeef;
+  --syn-bg-info: #e8f7fd;
+  --syn-bg-success: #e6faf4;
+  --syn-bg-warning: #fff3ee;
+  --syn-bg-error: #fdecea;
 
-  /* Semantic state colors */
-  --success: #00C48C;
-  --warning: #FF6B35;
-  --info: #00AEEF;
-  --text-sub: #3D3550;
-  --text-muted: #9A90A8;
-
-  /* Kind chip colors (1:1 with artifact types) */
-  --kind-doc: #4B2882;            /* violet */
-  --kind-tableur: #00C48C;        /* emerald */
-  --kind-diagramme: #00AEEF;     /* cyan */
-  --live-pill: #C0297A;           /* = accent */
-
-  /* Sidebar (primary-dark chassis) */
-  --sidebar: #2D1557;
-  --sidebar-foreground: #FFFFFF;
-  --sidebar-primary: #4B2882;
-  --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: #4B2882;
-  --sidebar-accent-foreground: #FFFFFF;
-  --sidebar-border: #4B2882;
-  --sidebar-ring: #6B3FA0;
-
-  /* Charts (defaults; product doesn't use these actively) */
-  --chart-1: #4B2882;
-  --chart-2: #00C48C;
-  --chart-3: #00AEEF;
-  --chart-4: #C0297A;
-  --chart-5: #FF6B35;
-
-  /* Fonts */
-  --font-display: 'Montserrat', system-ui, sans-serif;
-  --font-body: 'Open Sans', system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
-
-  /* Shadows (violet-tinted) */
-  --shadow-sm: 0 1px 3px rgba(45, 21, 87, 0.08);
-  --shadow-md: 0 4px 12px rgba(45, 21, 87, 0.12);
-  --shadow-lg: 0 8px 32px rgba(45, 21, 87, 0.16);
-
-  /* Compatibility helpers (shadcn/neutral expects these) */
-  --shadow-card: var(--shadow-sm);
-  --shadow-float: var(--shadow-md);
-  --shadow-composer: var(--shadow-sm);
-  --shadow-composer-focus: var(--shadow-md);
-  --shadow-inset: inset 0 1px 1px rgba(45, 21, 87, 0.06);
-  --shadow-glow: 0 0 20px rgba(75, 40, 130, 0.12);
+  /* Ombres teintées violet */
+  --shadow-card: 0 1px 3px rgba(45, 21, 87, 0.08);
+  --shadow-float: 0 8px 32px rgba(45, 21, 87, 0.16);
+  --shadow-composer: 0 1px 2px rgba(45, 21, 87, 0.06);
+  --shadow-composer-focus:
+    0 0 0 1px rgba(75, 40, 130, 0.1), 0 2px 8px -2px rgba(45, 21, 87, 0.1);
+  --shadow-inset: inset 0 1px 1px rgba(45, 21, 87, 0.04);
+  --shadow-glow: 0 0 20px rgba(45, 21, 87, 0.08);
 
   --ease-spring: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
   --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.dark {
-  --background: #1C1C2E;
-  --foreground: #F5F4F8;
-  --card: #2D1557;
-  --card-foreground: #F5F4F8;
-  --popover: #2D1557;
-  --popover-foreground: #F5F4F8;
-  --primary: #6B3FA0;
-  --primary-foreground: #FFFFFF;
-  --secondary: #4B2882;
-  --secondary-foreground: #F5F4F8;
-  --muted: #4B2882;
-  --muted-foreground: #9A90A8;
-  --accent: #C0297A;
-  --accent-foreground: #FFFFFF;
-  --destructive: #E63946;
-  --border: #4B2882;
-  --input: #4B2882;
-  --ring: #6B3FA0;
 }
 
 @layer base {
@@ -312,7 +131,6 @@ em, .quote { font-style: italic; }
   }
   body {
     @apply bg-background text-foreground;
-    font-family: var(--font-body);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
@@ -339,16 +157,19 @@ em, .quote { font-style: italic; }
     overflow-x: hidden;
   }
 
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    /* Montserrat pour les titres — la couleur violette est appliquée au
+       niveau des pages (.page-title), jamais globalement (le markdown
+       streamé des messages doit rester neutre) */
     font-family: var(--font-display);
-    color: var(--primary);
-    letter-spacing: -0.02em;
+    letter-spacing: -0.01em;
     line-height: 1.2;
   }
-
-  h1 { font-size: 2.25rem; font-weight: 700; }
-  h2 { font-size: 1.625rem; font-weight: 700; letter-spacing: -0.015em; }
-  h3 { font-size: 1.25rem; font-weight: 600; }
 
   p {
     line-height: 1.6;
@@ -360,281 +181,137 @@ select:focus-visible,
 [role="button"]:focus-visible,
 input:focus-visible,
 textarea:focus-visible {
-  outline: 2px solid var(--primary-mid);
-  outline-offset: 2px;
-}
-
-/* ---------------------------------------------------------------------------
- * Synelia — signature components
- * --------------------------------------------------------------------------- */
-
-/* The 56×3 px magenta rule under every H1, H2, and section title. */
-.synelia-rule {
-  width: 56px;
-  height: 3px;
-  background: var(--accent);
-  border-radius: var(--radius-sm);
-  margin: 16px 0;
-  border: none;
-  display: block;
-}
-
-/* Eyebrow: small uppercase tracked label, used for "CONNEXION", "DIRECTION DATA & IA" */
-.synelia-eyebrow {
-  font-family: var(--font-body);
-  font-size: 0.6875rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--accent);
-}
-
-/* Buttons — primary / ghost, no fourth style */
-.synelia-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  font-family: var(--font-display);
-  font-size: 0.875rem;
-  font-weight: 600;
-  letter-spacing: 0.01em;
-  padding: 10px 16px;
-  border-radius: var(--radius-md);
-  transition: background 150ms var(--ease-smooth), color 150ms var(--ease-smooth);
-  cursor: pointer;
-  border: 1px solid transparent;
-}
-.synelia-btn-primary {
-  background: var(--primary);
-  color: #fff;
-}
-.synelia-btn-primary:hover {
-  background: var(--primary-mid);
-}
-.synelia-btn-ghost {
-  background: #fff;
-  color: var(--primary);
-}
-.synelia-btn-ghost:hover {
-  background: var(--secondary);
-}
-
-/* Input field — single shape for text + password + textarea */
-.synelia-input {
-  width: 100%;
-  background: #fff;
-  color: var(--foreground);
-  font-family: var(--font-body);
-  font-size: 0.9375rem;
-  padding: 10px 12px 10px 40px;       /* left padding for the leading icon */
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
   outline: none;
-  transition: border-color 150ms var(--ease-smooth);
-}
-.synelia-input:focus {
-  border-color: var(--primary-mid);
-  outline: 2px solid var(--primary-mid);
-  outline-offset: 0;
-}
-.synelia-input::placeholder {
-  color: var(--text-muted);
-}
-.synelia-input--no-icon {
-  padding-left: 12px;
 }
 
-.synelia-input-wrapper {
-  position: relative;
-  width: 100%;
-}
-.synelia-input-wrapper > .synelia-input-icon {
-  position: absolute;
-  left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--text-muted);
-  pointer-events: none;
-}
-.synelia-input-wrapper > .synelia-input-icon--right {
-  left: auto;
-  right: 12px;
-  pointer-events: auto;
-  cursor: pointer;
+@utility text-balance {
+  text-wrap: balance;
 }
 
-/* Label — used above every input */
-.synelia-label {
-  display: block;
-  font-family: var(--font-body);
-  font-size: 0.8125rem;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  color: var(--foreground);
-  margin-bottom: 6px;
+@utility -webkit-overflow-scrolling-touch {
+  -webkit-overflow-scrolling: touch;
 }
 
-/* Kind chip — used on artifact cards + artifact modal */
-.synelia-kind-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-family: var(--font-body);
-  font-size: 0.6875rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  padding: 4px 8px;
-  border-radius: var(--radius-sm);
-}
-.synelia-kind-chip--doc { background: var(--kind-doc); color: #fff; }
-.synelia-kind-chip--tableur { background: var(--kind-tableur); color: var(--primary-dark); }
-.synelia-kind-chip--diagramme { background: var(--kind-diagramme); color: var(--primary-dark); }
-
-/* Live pill — the "AI is generating" indicator on artifacts */
-.synelia-live-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-family: var(--font-body);
-  font-size: 0.6875rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  background: var(--live-pill);
-  color: #fff;
-  padding: 4px 10px;
-  border-radius: var(--radius-pill);
-}
-.synelia-live-pill::before {
-  content: "";
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #fff;
-  animation: dot-pulse 1.4s ease-in-out infinite;
+@utility touch-pan-y {
+  touch-action: pan-y;
 }
 
-/* Project icon tile — the 56px colored square with a white Lucide icon */
-.synelia-project-tile {
-  width: 56px;
-  height: 56px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--radius-md);
-  color: #fff;
-  flex-shrink: 0;
+@utility overscroll-behavior-contain {
+  overscroll-behavior: contain;
 }
 
-/* Avatar stack — 32px round avatars, 10px overlap */
-.synelia-avatar-stack {
-  display: inline-flex;
-  align-items: center;
-}
-.synelia-avatar-stack > * {
-  margin-left: -10px;
-  border: 2px solid var(--background);
-  border-radius: 50%;
-}
-.synelia-avatar-stack > *:first-child {
-  margin-left: 0;
-}
-.synelia-avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  font-family: var(--font-display);
-  font-size: 11px;
-  font-weight: 700;
-  flex-shrink: 0;
+@utility no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
-/* Visibility badge (pill: Privé / Public) */
-.synelia-visibility {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-family: var(--font-body);
-  font-size: 0.6875rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  background: var(--secondary);
-  color: var(--text-sub);
-  padding: 6px 12px;
-  border-radius: var(--radius-pill);
-  border: none;
-  cursor: pointer;
-}
+.skeleton {
+  * {
+    pointer-events: none !important;
+  }
 
-/* Pulsing green dot — "live" indicator on a project row */
-.synelia-live-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--success);
-  display: inline-block;
-  animation: dot-pulse 1.4s ease-in-out infinite;
-}
+  *[class^="text-"] {
+    color: transparent;
+    @apply rounded-md bg-foreground/20 select-none animate-pulse;
+  }
 
-/* Pulsing magenta dot — used on login left panel */
-.synelia-pulse-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--accent);
-  display: inline-block;
-  animation: dot-pulse 1.4s ease-in-out infinite;
-}
+  .skeleton-bg {
+    @apply bg-foreground/10;
+  }
 
-/* ---------------------------------------------------------------------------
- * Keyframes
- * --------------------------------------------------------------------------- */
+  .skeleton-div {
+    @apply bg-foreground/20 animate-pulse;
+  }
+}
 
 @keyframes fade-up {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
 }
 
 @keyframes dot-pulse {
-  0%, 60%, 100% { opacity: 0.3; transform: translateY(0); }
-  30% { opacity: 1; transform: translateY(-3px); }
+  0%,
+  60%,
+  100% {
+    opacity: 0.3;
+    transform: translateY(0);
+  }
+  30% {
+    opacity: 1;
+    transform: translateY(-3px);
+  }
 }
 
 @keyframes message-in {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes thinking-dot {
-  0%, 60%, 100% { opacity: 0.3; transform: translateY(0); }
-  30% { opacity: 1; transform: translateY(-3px); }
+  0%,
+  60%,
+  100% {
+    opacity: 0.3;
+    transform: translateY(0);
+  }
+  30% {
+    opacity: 1;
+    transform: translateY(-3px);
+  }
 }
 
 @keyframes glow-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(192, 41, 122, 0%); }
-  50% { box-shadow: 0 0 0 3px rgba(192, 41, 122, 8%); }
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(107, 63, 160, 0);
+  }
+  50% {
+    box-shadow: 0 0 0 3px rgba(107, 63, 160, 0.08);
+  }
 }
 
 @keyframes subtle-lift {
-  from { transform: translateY(0); box-shadow: var(--shadow-sm); }
-  to { transform: translateY(-1px); box-shadow: var(--shadow-md); }
+  from {
+    transform: translateY(0);
+    box-shadow: var(--shadow-card);
+  }
+  to {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-float);
+  }
 }
 
 @utility fade-up {
@@ -647,8 +324,21 @@ textarea:focus-visible {
 
 @utility shimmer {
   animation: shimmer 2s linear infinite;
-  background: linear-gradient(90deg, transparent, rgba(75, 40, 130, 0.04), transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(75, 40, 130, 0.06),
+    transparent
+  );
   background-size: 200% 100%;
+}
+
+/* Trait magenta — motif récurrent de séparation/accent Synelia */
+@utility synelia-rule {
+  width: 56px;
+  height: 3px;
+  background: var(--syn-magenta);
+  border: none;
 }
 
 @utility dot-pulse {
@@ -667,39 +357,14 @@ textarea:focus-visible {
   animation: glow-pulse 2s ease-in-out infinite;
 }
 
-@utility text-balance {
-  text-wrap: balance;
+.ProseMirror {
+  outline: none;
 }
-
-@utility no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-  &::-webkit-scrollbar { display: none; }
-}
-
-@utility overscroll-behavior-contain {
-  overscroll-behavior: contain;
-}
-
-@utility touch-pan-y {
-  touch-action: pan-y;
-}
-
-@utility -webkit-overflow-scrolling-touch {
-  -webkit-overflow-scrolling: touch;
-}
-
-/* ---------------------------------------------------------------------------
- * CodeMirror (in-chat editor) — keep existing overrides
- * --------------------------------------------------------------------------- */
-
-.ProseMirror { outline: none; }
 
 .cm-editor {
   @apply bg-transparent! outline-hidden! text-[13px]! leading-[1.6]!;
   font-family:
-    "SF Mono", "Cascadia Code", "Fira Code", "JetBrains Mono", ui-monospace,
-    monospace !important;
+    var(--font-mono-brand), "JetBrains Mono", ui-monospace, monospace !important;
 }
 
 .cm-gutters {
@@ -717,17 +382,7 @@ textarea:focus-visible {
 .ͼo.cm-focused > .cm-scroller > .cm-selectionLayer .cm-selectionBackground,
 .ͼo.cm-selectionBackground,
 .ͼo.cm-content::selection {
-  background: rgba(75, 40, 130, 0.15) !important;
-}
-
-.dark
-  .ͼo.cm-focused
-  > .cm-scroller
-  > .cm-selectionLayer
-  > .cm-selectionBackground,
-.dark .ͼo.cm-selectionBackground,
-.dark .ͼo.cm-content::selection {
-  background: rgba(192, 41, 122, 0.2) !important;
+  background: rgba(107, 63, 160, 0.18) !important;
 }
 
 .cm-activeLine {
@@ -752,39 +407,36 @@ textarea:focus-visible {
 }
 
 .cm-cursor {
-  border-left-color: var(--accent) !important;
+  border-left-color: #6b3fa0 !important;
   border-left-width: 2px !important;
 }
 
 .cm-matchingBracket {
-  background: rgba(75, 40, 130, 0.12) !important;
-  outline: 1px solid rgba(75, 40, 130, 0.3);
+  background: rgba(107, 63, 160, 0.12) !important;
+  outline: 1px solid rgba(107, 63, 160, 0.3);
   border-radius: 2px;
 }
 
 .suggestion-highlight {
-  @apply cursor-pointer rounded-sm bg-blue-200 transition-colors hover:bg-blue-300 dark:bg-blue-500/40 dark:text-blue-50 dark:hover:bg-blue-400/50;
+  @apply cursor-pointer rounded-sm transition-colors;
+  background: rgba(107, 63, 160, 0.16);
   user-select: none;
   -webkit-user-select: none;
 }
 
-/* ---------------------------------------------------------------------------
- * Scrollbars
- * --------------------------------------------------------------------------- */
+.suggestion-highlight:hover {
+  background: rgba(107, 63, 160, 0.26);
+}
 
 @layer base {
   * {
     scrollbar-width: thin;
-    scrollbar-color: rgba(75, 40, 130, 0.18) transparent;
-  }
-
-  .dark * {
-    scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
+    scrollbar-color: rgba(45, 21, 87, 0.14) transparent;
   }
 
   *::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 4px;
+    height: 4px;
   }
 
   *::-webkit-scrollbar-track {
@@ -792,20 +444,12 @@ textarea:focus-visible {
   }
 
   *::-webkit-scrollbar-thumb {
-    background: rgba(75, 40, 130, 0.18);
+    background: rgba(45, 21, 87, 0.14);
     border-radius: 9999px;
   }
 
   *::-webkit-scrollbar-thumb:hover {
-    background: rgba(75, 40, 130, 0.32);
-  }
-
-  .dark *::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.12);
-  }
-
-  .dark *::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.24);
+    background: rgba(45, 21, 87, 0.28);
   }
 
   *::-webkit-scrollbar-corner {
@@ -816,6 +460,3 @@ textarea:focus-visible {
 [data-testid="artifact"] {
   isolation: isolate;
 }
-
-/* === Cowork component CSS (ported from handoff src/app.css + login.css + admin.css) === */
-@import './cowork.css';

@@ -21,7 +21,7 @@ const nextConfig: NextConfig = {
   env: {
     NEXT_PUBLIC_BASE_PATH: basePath,
   },
-  cacheComponents: false,
+  cacheComponents: true,
   devIndicators: false,
   poweredByHeader: false,
   reactCompiler: true,
@@ -44,12 +44,11 @@ const nextConfig: NextConfig = {
   },
   experimental: {
     prefetchInlining: true,
+    cachedNavigations: true,
     appNewScrollHandler: true,
     inlineCss: true,
     turbopackFileSystemCacheForDev: true,
   },
-    allowedDevOrigins: ['synelia-nexus-dev.technocify.fr'],
-
 };
 
 export default withBotId(nextConfig);
