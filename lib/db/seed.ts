@@ -1,7 +1,7 @@
-import { config } from "dotenv";
 import { createHash } from "node:crypto";
+import { config } from "dotenv";
+import { eq, inArray } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/postgres-js";
-import { and, eq, inArray } from "drizzle-orm";
 import postgres from "postgres";
 
 import {
@@ -634,7 +634,8 @@ const main = async () => {
 
   console.log("Seeding database…");
 
-  const teamByKey: Record<string, { id: string; email: string; name: string }> = {};
+  const teamByKey: Record<string, { id: string; email: string; name: string }> =
+    {};
 
   for (const member of TEAM) {
     const existingRows = await db
@@ -702,7 +703,7 @@ const main = async () => {
       workspaceId: wsId,
       userId: teamByKey[m.key].id,
       role: m.key === "awa" ? ("owner" as const) : ("member" as const),
-    })),
+    }))
   );
 
   const projectIds: Record<string, string> = {};
@@ -726,7 +727,7 @@ const main = async () => {
         projectId,
         userId: teamByKey[mk].id,
         addedBy: awa.id,
-      })),
+      }))
     );
   }
 
@@ -778,7 +779,7 @@ const main = async () => {
       official: p.official ?? false,
       pinned: p.pinned ?? false,
       uses: p.uses,
-    })),
+    }))
   );
 
   const tomorrow = new Date(now.getTime() + 24 * 3_600_000);
