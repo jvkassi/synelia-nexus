@@ -21,14 +21,6 @@ import { guestRegex } from "@/lib/constants";
 import { LoaderIcon } from "./icons";
 import { toast } from "./toast";
 
-function emailToHue(email: string): number {
-  let hash = 0;
-  for (const char of email) {
-    hash = char.charCodeAt(0) + ((hash << 5) - hash);
-  }
-  return Math.abs(hash) % 360;
-}
-
 export function SidebarUserNav({ user }: { user: User }) {
   const router = useRouter();
   const { data, status } = useSession();
@@ -58,12 +50,7 @@ export function SidebarUserNav({ user }: { user: User }) {
                 className="h-8 px-2 rounded-lg bg-transparent text-sidebar-foreground/70 transition-colors duration-150 hover:text-sidebar-foreground data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                 data-testid="user-nav-button"
               >
-                <div
-                  className="size-5 shrink-0 rounded-full ring-1 ring-sidebar-border/50"
-                  style={{
-                    background: `linear-gradient(135deg, oklch(0.35 0.08 ${emailToHue(user.email ?? "")}), oklch(0.25 0.05 ${emailToHue(user.email ?? "") + 40}))`,
-                  }}
-                />
+                <div className="size-5 shrink-0 rounded-full bg-primary ring-1 ring-sidebar-border/50" />
                 <span className="truncate text-[13px]" data-testid="user-email">
                   {isGuest ? "Guest" : user?.email}
                 </span>
