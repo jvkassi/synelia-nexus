@@ -1,8 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import { Suspense } from "react";
 import { auth } from "@/app/(auth)/auth";
-import { Topbar } from "@/components/synelia/topbar";
-import { WorkspaceSidebar } from "@/components/synelia/workspace-sidebar";
+import { WorkspaceChrome } from "@/components/synelia/workspace-chrome";
 import {
   getProjectsForUser,
   getRecentChatsForWorkspace,
@@ -109,16 +108,12 @@ async function WorkspaceShell({
 
   return (
     <WorkspaceProvider value={value}>
-      <div className="flex h-dvh w-full overflow-hidden bg-secondary">
-        <WorkspaceSidebar
-          userName={userName}
-          userRole={membership.role === "owner" ? "Propriétaire" : "Membre"}
-        />
-        <div className="flex min-w-0 flex-1 flex-col">
-          <Topbar />
-          <main className="min-h-0 flex-1 overflow-y-auto">{children}</main>
-        </div>
-      </div>
+      <WorkspaceChrome
+        userName={userName}
+        userRole={membership.role === "owner" ? "Propriétaire" : "Membre"}
+      >
+        {children}
+      </WorkspaceChrome>
     </WorkspaceProvider>
   );
 }
