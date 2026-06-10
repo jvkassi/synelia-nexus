@@ -1115,3 +1115,100 @@ export async function touchChat({ chatId }: { chatId: string }) {
     throw new ChatbotError("bad_request:database", "Failed to touch chat");
   }
 }
+
+/**
+ * Conversations récentes de l'espace, limitées aux projets visibles
+ * par l'utilisateur (membre ou projet public).
+ */
+export async function getRecentChatsForWorkspace({
+  workspaceId,
+  userId,
+  limit = 8,
+}: {
+  workspaceId: string;
+  userId: string;
+  limit?: number;
+}): Promise<
+  Array<Chat & { projectName: string; projectColor: string | null }>
+> {
+  try {
+    const visible = await getProjectsForUser({ workspaceId, userId });
+    if (visible.length === 0) {
+      return [];
+    }
+    const byId = new Map(visible.map((p) => [p.id, p]));
+
+    const rows = await db
+      .select()
+      .from(chat)
+      .where(
+        inArray(
+          chat.projectId,
+          visible.map((p) => p.id)
+        )
+      )
+      .orderBy(desc(chat.updatedAt), desc(chat.createdAt))
+      .limit(limit);
+
+    return rows.map((c) => {
+      const proj = c.projectId ? byId.get(c.projectId) : undefined;
+      return {
+        ...c,
+        projectName: proj?.name ?? "",
+        projectColor: proj?.color ?? null,
+      };
+    });
+  } catch (_error) {
+    throw new ChatbotError(
+      "bad_request:database",
+      "Failed to get recent chats for workspace"
+    );
+  }
+}
+
+/**
+ * Statistiques par projet (conversations, membres) pour le tableau de bord.
+ */
+export async function getProjectStatsForWorkspace({
+  workspaceId,
+}: {
+  workspaceId: string;
+}): Promise<Map<string, { chatCount: number; memberCount: number }>> {
+  try {
+    const [chatCounts, memberCounts] = await Promise.all([
+      db
+        .select({ projectId: chat.projectId, n: count() })
+        .from(chat)
+        .innerJoin(project, eq(chat.projectId, project.id))
+        .where(eq(project.workspaceId, workspaceId))
+        .groupBy(chat.projectId),
+      db
+        .select({ projectId: projectMember.projectId, n: count() })
+        .from(projectMember)
+        .innerJoin(project, eq(projectMember.projectId, project.id))
+        .where(eq(project.workspaceId, workspaceId))
+        .groupBy(projectMember.projectId),
+    ]);
+
+    const stats = new Map<string, { chatCount: number; memberCount: number }>();
+    for (const row of chatCounts) {
+      if (row.projectId) {
+        stats.set(row.projectId, { chatCount: row.n, memberCount: 0 });
+      }
+    }
+    for (const row of memberCounts) {
+      const entry = stats.get(row.projectId) ?? {
+        chatCount: 0,
+        memberCount: 0,
+      };
+      entry.memberCount = row.n;
+      stats.set(row.projectId, entry);
+    }
+    return stats;
+  } catch (_error) {
+    throw new ChatbotError(
+      "bad_request:database",
+      "Failed to get project stats"
+    );
+  }
+}
