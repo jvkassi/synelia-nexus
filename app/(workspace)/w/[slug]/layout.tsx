@@ -1,4 +1,5 @@
 import { notFound, redirect } from "next/navigation";
+import { Suspense } from "react";
 import { auth } from "@/app/(auth)/auth";
 import { Topbar } from "@/components/synelia/topbar";
 import { WorkspaceSidebar } from "@/components/synelia/workspace-sidebar";
@@ -15,9 +16,25 @@ import {
 } from "@/lib/workspace-context";
 
 /* Shell de l'espace de travail : résout l'espace depuis le slug,
-   vérifie l'appartenance, charge les données du shell. */
+   vérifie l'appartenance, charge les données du shell. Le travail
+   dynamique vit dans <WorkspaceShell> sous une frontière Suspense
+   (exigence cacheComponents de Next 16). */
 
-export default async function WorkspaceLayout({
+export default function WorkspaceLayout({
+  children,
+  params,
+}: {
+  children: React.ReactNode;
+  params: Promise<{ slug: string }>;
+}) {
+  return (
+    <Suspense fallback={<div className="flex h-dvh bg-primary-dark" />}>
+      <WorkspaceShell params={params}>{children}</WorkspaceShell>
+    </Suspense>
+  );
+}
+
+async function WorkspaceShell({
   children,
   params,
 }: {
