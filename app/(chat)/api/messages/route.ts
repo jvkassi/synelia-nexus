@@ -1,5 +1,10 @@
 import { auth } from "@/app/(auth)/auth";
-import { getChatById, getMessagesByChatId } from "@/lib/db/queries";
+import {
+  getChatAccess,
+  getChatById,
+  getMessagesByChatId,
+} from "@/lib/db/queries";
+import { ChatbotError } from "@/lib/errors";
 import { convertToUIMessages } from "@/lib/utils";
 
 export async function GET(request: Request) {
@@ -25,14 +30,15 @@ export async function GET(request: Request) {
     });
   }
 
-  if (
-    chat.visibility === "private" &&
-    (!session?.user || session.user.id !== chat.userId)
-  ) {
-    return Response.json({ error: "forbidden" }, { status: 403 });
+  const access = session?.user?.id
+    ? await getChatAccess({ userId: session.user.id, chatId })
+    : undefined;
+
+  if (!access && chat.visibility !== "public") {
+    return new ChatbotError("forbidden:chat").toResponse();
   }
 
-  const isReadonly = !session?.user || session.user.id !== chat.userId;
+  const isReadonly = !access;
 
   return Response.json({
     messages: convertToUIMessages(messages),

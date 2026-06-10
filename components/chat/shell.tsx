@@ -26,7 +26,7 @@ import { submitEditedMessage } from "./message-editor";
 import { Messages } from "./messages";
 import { MultimodalInput } from "./multimodal-input";
 
-export function ChatShell() {
+export function ChatShell({ className }: { className?: string }) {
   const {
     chatId,
     messages,
@@ -71,7 +71,12 @@ export function ChatShell() {
 
   return (
     <>
-      <div className="flex h-dvh w-full flex-row overflow-hidden">
+      <div
+        className={cn(
+          "flex w-full flex-row overflow-hidden",
+          className ?? "h-dvh"
+        )}
+      >
         <div
           className={cn(
             "flex min-w-0 flex-col bg-sidebar transition-[width] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]",
@@ -177,15 +182,17 @@ export function ChatShell() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Activate AI Gateway</AlertDialogTitle>
+            <AlertDialogTitle>Activer la passerelle IA</AlertDialogTitle>
             <AlertDialogDescription>
-              This application requires{" "}
-              {process.env.NODE_ENV === "production" ? "the owner" : "you"} to
-              activate Vercel AI Gateway.
+              Cette application nécessite l&apos;activation de la passerelle IA
+              {process.env.NODE_ENV === "production"
+                ? " par le propriétaire"
+                : ""}
+              .
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => {
                 window.open(
@@ -195,7 +202,7 @@ export function ChatShell() {
                 window.location.href = `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/`;
               }}
             >
-              Activate
+              Activer
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

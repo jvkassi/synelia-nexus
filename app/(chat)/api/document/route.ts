@@ -3,6 +3,7 @@ import { auth } from "@/app/(auth)/auth";
 import type { ArtifactKind } from "@/components/chat/artifact";
 import {
   deleteDocumentsByIdAfterTimestamp,
+  getChatAccess,
   getDocumentsById,
   saveDocument,
   updateDocumentContent,
@@ -15,6 +16,23 @@ const documentSchema = z.object({
   kind: z.enum(["text", "code", "image", "sheet"]),
   isManualEdit: z.boolean().optional(),
 });
+
+async function hasDocumentAccess(
+  userId: string,
+  document: { userId: string; chatId: string | null }
+): Promise<boolean> {
+  if (document.userId === userId) {
+    return true;
+  }
+
+  if (!document.chatId) {
+    return false;
+  }
+
+  const access = await getChatAccess({ userId, chatId: document.chatId });
+
+  return Boolean(access);
+}
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -41,7 +59,7 @@ export async function GET(request: Request) {
     return new ChatbotError("not_found:document").toResponse();
   }
 
-  if (document.userId !== session.user.id) {
+  if (!(await hasDocumentAccess(session.user.id, document))) {
     return new ChatbotError("forbidden:document").toResponse();
   }
 
@@ -88,7 +106,7 @@ export async function POST(request: Request) {
   if (documents.length > 0) {
     const [doc] = documents;
 
-    if (doc.userId !== session.user.id) {
+    if (!(await hasDocumentAccess(session.user.id, doc))) {
       return new ChatbotError("forbidden:document").toResponse();
     }
   }
@@ -138,7 +156,7 @@ export async function DELETE(request: Request) {
 
   const [document] = documents;
 
-  if (document.userId !== session.user.id) {
+  if (!(await hasDocumentAccess(session.user.id, document))) {
     return new ChatbotError("forbidden:document").toResponse();
   }
 

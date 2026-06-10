@@ -1,5 +1,9 @@
 import { auth } from "@/app/(auth)/auth";
-import { getSuggestionsByDocumentId } from "@/lib/db/queries";
+import {
+  getChatAccess,
+  getDocumentsById,
+  getSuggestionsByDocumentId,
+} from "@/lib/db/queries";
 import { ChatbotError } from "@/lib/errors";
 
 export async function GET(request: Request) {
@@ -30,7 +34,20 @@ export async function GET(request: Request) {
   }
 
   if (suggestion.userId !== session.user.id) {
-    return new ChatbotError("forbidden:api").toResponse();
+    const [document] = await getDocumentsById({ id: suggestion.documentId });
+
+    if (!document?.chatId) {
+      return new ChatbotError("forbidden:api").toResponse();
+    }
+
+    const access = await getChatAccess({
+      userId: session.user.id,
+      chatId: document.chatId,
+    });
+
+    if (!access) {
+      return new ChatbotError("forbidden:api").toResponse();
+    }
   }
 
   return Response.json(suggestions, { status: 200 });

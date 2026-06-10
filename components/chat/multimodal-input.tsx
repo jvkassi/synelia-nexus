@@ -10,7 +10,7 @@ import {
   LockIcon,
   WrenchIcon,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import {
   type ChangeEvent,
@@ -43,7 +43,7 @@ import {
   type ModelCapabilities,
 } from "@/lib/ai/models";
 import type { Attachment, ChatMessage } from "@/lib/types";
-import { cn } from "@/lib/utils";
+import { buildChatHomePath, buildChatPath, cn } from "@/lib/utils";
 import {
   PromptInput,
   PromptInputFooter,
@@ -108,6 +108,7 @@ function PureMultimodalInput({
   isLoading?: boolean;
 }) {
   const router = useRouter();
+  const pathname = usePathname();
   const { setTheme, resolvedTheme } = useTheme();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { width } = useWindowSize();
@@ -157,13 +158,13 @@ function PureMultimodalInput({
     setInput("");
     switch (cmd.action) {
       case "new":
-        router.push("/");
+        router.push(buildChatHomePath(pathname));
         break;
       case "clear":
         setMessages(() => []);
         break;
       case "rename":
-        toast("Rename is available from the sidebar chat menu.");
+        toast("Le renommage est disponible depuis le menu de la conversation.");
         break;
       case "model": {
         const modelBtn = document.querySelector<HTMLButtonElement>(
@@ -176,30 +177,30 @@ function PureMultimodalInput({
         setTheme(resolvedTheme === "dark" ? "light" : "dark");
         break;
       case "delete":
-        toast("Delete this chat?", {
+        toast("Supprimer cette conversation ?", {
           action: {
-            label: "Delete",
+            label: "Supprimer",
             onClick: () => {
               fetch(
                 `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/api/chat?id=${chatId}`,
                 { method: "DELETE" }
               );
-              router.push("/");
-              toast.success("Chat deleted");
+              router.push(buildChatHomePath(pathname));
+              toast.success("Conversation supprimée");
             },
           },
         });
         break;
       case "purge":
-        toast("Delete all chats?", {
+        toast("Supprimer toutes les conversations ?", {
           action: {
-            label: "Delete all",
+            label: "Tout supprimer",
             onClick: () => {
               fetch(`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/api/history`, {
                 method: "DELETE",
               });
-              router.push("/");
-              toast.success("All chats deleted");
+              router.push(buildChatHomePath(pathname));
+              toast.success("Toutes les conversations ont été supprimées");
             },
           },
         });
@@ -216,11 +217,7 @@ function PureMultimodalInput({
   const [slashIndex, setSlashIndex] = useState(0);
 
   const submitForm = useCallback(() => {
-    window.history.pushState(
-      {},
-      "",
-      `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/chat/${chatId}`
-    );
+    window.history.pushState({}, "", buildChatPath(pathname, chatId));
 
     sendMessage({
       role: "user",
@@ -254,6 +251,7 @@ function PureMultimodalInput({
     setLocalStorageInput,
     width,
     chatId,
+    pathname,
   ]);
 
   const uploadFile = useCallback(async (file: File) => {

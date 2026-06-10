@@ -68,15 +68,49 @@ export function sanitizeText(text: string) {
   return text.replace('<has_function_call>', '');
 }
 
-export function convertToUIMessages(messages: DBMessage[]): ChatMessage[] {
+export function convertToUIMessages(
+  messages: DBMessage[],
+  options?: { authorNames?: Map<string, string> },
+): ChatMessage[] {
   return messages.map((message) => ({
     id: message.id,
     role: message.role as 'user' | 'assistant' | 'system',
     parts: message.parts as UIMessagePart<CustomUIDataTypes, ChatTools>[],
     metadata: {
       createdAt: formatISO(message.createdAt),
+      authorId: message.authorId ?? null,
+      authorName:
+        (message.authorId
+          ? options?.authorNames?.get(message.authorId)
+          : null) ?? null,
+      tag: message.tag ?? null,
+      isInterrupted: message.isInterrupted,
     },
   }));
+}
+
+/* Chemins de conversation — racine héritée (/chat/:id) ou
+   espace de travail (/w/:slug/projects/:projectId/chat/:id). */
+
+const PROJECT_BASE_PATTERN = /^\/w\/[^/]+\/projects\/[0-9a-fA-F-]{36}/;
+
+export function getProjectBasePath(pathname: string): string | null {
+  const match = pathname.match(PROJECT_BASE_PATTERN);
+  return match ? match[0] : null;
+}
+
+/** URL de la conversation, selon le contexte courant (pathname sans basePath). */
+export function buildChatPath(pathname: string, chatId: string): string {
+  const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
+  const projectBase = getProjectBasePath(pathname) ?? '';
+  return `${basePath}${projectBase}/chat/${chatId}`;
+}
+
+/** Cible « accueil » : la page projet dans l'espace, sinon la racine. */
+export function buildChatHomePath(pathname: string): string {
+  const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
+  const projectBase = getProjectBasePath(pathname);
+  return projectBase ? `${basePath}${projectBase}` : `${basePath}/`;
 }
 
 export function getTextFromMessage(message: ChatMessage | UIMessage): string {

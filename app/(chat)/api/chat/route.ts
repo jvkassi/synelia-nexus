@@ -25,15 +25,18 @@ import { editDocument } from "@/lib/ai/tools/edit-document";
 import { getWeather } from "@/lib/ai/tools/get-weather";
 import { requestSuggestions } from "@/lib/ai/tools/request-suggestions";
 import { updateDocument } from "@/lib/ai/tools/update-document";
+import { requireProjectAccess } from "@/lib/auth/guards";
 import { isProductionEnvironment } from "@/lib/constants";
 import {
   createStreamId,
   deleteChatById,
+  getChatAccess,
   getChatById,
   getMessageCountByUserId,
   getMessagesByChatId,
   saveChat,
   saveMessages,
+  touchChat,
   updateChatTitleById,
   updateMessage,
 } from "@/lib/db/queries";
@@ -68,8 +71,14 @@ export async function POST(request: Request) {
   }
 
   try {
-    const { id, message, messages, selectedChatModel, selectedVisibilityType } =
-      requestBody;
+    const {
+      id,
+      message,
+      messages,
+      projectId,
+      selectedChatModel,
+      selectedVisibilityType,
+    } = requestBody;
 
     const [, session] = await Promise.all([
       checkBotId().catch(() => null),
@@ -104,16 +113,24 @@ export async function POST(request: Request) {
     let titlePromise: Promise<string> | null = null;
 
     if (chat) {
-      if (chat.userId !== session.user.id) {
+      const access = await getChatAccess({
+        userId: session.user.id,
+        chatId: id,
+      });
+      if (!access) {
         return new ChatbotError("forbidden:chat").toResponse();
       }
       messagesFromDb = await getMessagesByChatId({ id });
     } else if (message?.role === "user") {
+      if (projectId) {
+        await requireProjectAccess(session.user.id, projectId);
+      }
       await saveChat({
         id,
         userId: session.user.id,
         title: "New chat",
         visibility: selectedVisibilityType,
+        projectId: projectId ?? null,
       });
       titlePromise = generateTitleFromUserMessage({ message });
     }
@@ -300,6 +317,7 @@ export async function POST(request: Request) {
             })),
           });
         }
+        await touchChat({ chatId: id });
       },
       onError: (error) => {
         if (

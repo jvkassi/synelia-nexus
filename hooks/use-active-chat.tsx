@@ -26,7 +26,12 @@ import { DEFAULT_CHAT_MODEL } from "@/lib/ai/models";
 import type { Vote } from "@/lib/db/schema";
 import { ChatbotError } from "@/lib/errors";
 import type { ChatMessage } from "@/lib/types";
-import { fetcher, fetchWithErrorHandlers, generateUUID } from "@/lib/utils";
+import {
+  buildChatPath,
+  fetcher,
+  fetchWithErrorHandlers,
+  generateUUID,
+} from "@/lib/utils";
 
 type ActiveChatContextValue = {
   chatId: string;
@@ -52,7 +57,13 @@ type ActiveChatContextValue = {
 const ActiveChatContext = createContext<ActiveChatContextValue | null>(null);
 
 function extractChatId(pathname: string): string | null {
-  const match = pathname.match(/\/chat\/([^/]+)/);
+  // Couvre /chat/:id (héritage) et /w/:slug/projects/:pid/chat/:id
+  const match = pathname.match(/\/chat\/([0-9a-fA-F-]{36})/);
+  return match ? match[1] : null;
+}
+
+function extractProjectId(pathname: string): string | null {
+  const match = pathname.match(/\/projects\/([0-9a-fA-F-]{36})(?:\/|$)/);
   return match ? match[1] : null;
 }
 
@@ -72,6 +83,11 @@ export function ActiveChatProvider({ children }: { children: ReactNode }) {
   prevPathnameRef.current = pathname;
 
   const chatId = chatIdFromUrl ?? newChatIdRef.current;
+
+  // Projet courant (présent sous /w/:slug/projects/:pid/...), pour créer
+  // les nouvelles conversations dans le bon projet côté serveur.
+  const projectIdRef = useRef<string | null>(extractProjectId(pathname));
+  projectIdRef.current = extractProjectId(pathname);
 
   const [currentModelId, setCurrentModelId] = useState(DEFAULT_CHAT_MODEL);
   const currentModelIdRef = useRef(currentModelId);
@@ -146,6 +162,9 @@ export function ActiveChatProvider({ children }: { children: ReactNode }) {
               : { message: lastMessage }),
             selectedChatModel: currentModelIdRef.current,
             selectedVisibilityType: visibility,
+            ...(projectIdRef.current
+              ? { projectId: projectIdRef.current }
+              : {}),
             ...request.body,
           },
         };
@@ -165,7 +184,7 @@ export function ActiveChatProvider({ children }: { children: ReactNode }) {
       } else {
         toast({
           type: "error",
-          description: error.message || "Oops, an error occurred!",
+          description: error.message || "Oups, une erreur est survenue.",
         });
       }
     },
@@ -215,17 +234,13 @@ export function ActiveChatProvider({ children }: { children: ReactNode }) {
     const query = params.get("query");
     if (query && !hasAppendedQueryRef.current) {
       hasAppendedQueryRef.current = true;
-      window.history.replaceState(
-        {},
-        "",
-        `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/chat/${chatId}`
-      );
+      window.history.replaceState({}, "", buildChatPath(pathname, chatId));
       sendMessage({
         role: "user" as const,
         parts: [{ type: "text", text: query }],
       });
     }
-  }, [sendMessage, chatId]);
+  }, [sendMessage, chatId, pathname]);
 
   useAutoResume({
     autoResume: !isNewChat && !!chatData,

@@ -9,6 +9,10 @@ import type { Suggestion } from "./db/schema";
 
 export const messageMetadataSchema = z.object({
   createdAt: z.string(),
+  authorId: z.string().nullable().optional(),
+  authorName: z.string().nullable().optional(),
+  tag: z.string().nullable().optional(),
+  isInterrupted: z.boolean().optional(),
 });
 
 export type MessageMetadata = z.infer<typeof messageMetadataSchema>;
