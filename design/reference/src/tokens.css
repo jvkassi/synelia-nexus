@@ -1,0 +1,131 @@
+/* ============================================================
+   SYNELIA — Design Foundations
+   Couleurs, typographie & tokens
+   Référence: uploads/synelia-design.txt (Charte graphique)
+   ============================================================ */
+
+/* --- Webfonts (Google Fonts CDN) ----------------------------
+   Montserrat (display), Open Sans (body), JetBrains Mono (code)
+   If working offline, drop local files into /fonts and swap the
+   @import below for @font-face rules. ------------------------- */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Open+Sans:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  /* ---------- COULEURS PRIMAIRES ---------- */
+  --color-primary:       #4B2882;   /* Synelia Violet — signature */
+  --color-primary-dark:  #2D1557;   /* Violet sombre — sections premium, navbar active */
+  --color-primary-mid:   #6B3FA0;   /* Violet moyen — hover, bordures actives */
+  --color-accent:        #C0297A;   /* Synelia Magenta — accent ponctuel */
+  --color-accent-dark:   #A0206A;   /* Magenta pressé / hover accent */
+
+  /* ---------- NEUTRES ---------- */
+  --color-bg:            #FFFFFF;   /* Fond de page */
+  --color-bg-alt:        #F5F4F8;   /* Sections alternées, lignes paires */
+  --color-text:          #1C1C2E;   /* Corps de texte principal */
+  --color-text-sub:      #3D3550;   /* Sous-titres, encadrés */
+  --color-text-muted:    #9A90A8;   /* Texte secondaire, placeholders */
+  --color-border:        #9A90A8;   /* Bordures structurantes (1px) */
+  --color-border-soft:   #E7E3EE;   /* Bordures douces sur fond clair */
+
+  /* ---------- SÉMANTIQUE / ÉTATS ---------- */
+  --color-success:       #00C48C;   /* Validation, indicateurs positifs */
+  --color-warning:       #FF6B35;   /* Avertissements */
+  --color-error:         #E63946;   /* Erreurs, critiques */
+  --color-info:          #00AEEF;   /* Info (callouts uniquement, voir note) */
+
+  /* Fonds de callouts */
+  --bg-info:             #E8F7FD;
+  --bg-success:          #E6FAF4;
+  --bg-warning:          #FFF3EE;
+  --bg-error:            #FDECEA;
+
+  /* ---------- TYPOGRAPHIE : FAMILLES ---------- */
+  --font-display: 'Montserrat', system-ui, sans-serif;
+  --font-body:    'Open Sans', system-ui, sans-serif;
+  --font-mono:    'JetBrains Mono', ui-monospace, monospace;
+
+  /* ---------- TYPOGRAPHIE : ÉCHELLE (web) ---------- */
+  --text-xs:   0.75rem;   /* 12px — caption */
+  --text-sm:   0.875rem;  /* 14px — code, small */
+  --text-base: 1rem;      /* 16px — body */
+  --text-lg:   1.25rem;   /* 20px — H3 */
+  --text-xl:   1.75rem;   /* 28px — H2 */
+  --text-2xl:  2.5rem;    /* 40px — H1 */
+  --text-3xl:  3.25rem;   /* 52px — hero display */
+
+  --leading-tight: 1.2;
+  --leading-body:  1.6;   /* défaut corps de texte */
+
+  /* ---------- ESPACEMENT (base 8px) ---------- */
+  --space-xs:  4px;
+  --space-sm:  8px;
+  --space-md:  16px;
+  --space-lg:  24px;
+  --space-xl:  32px;
+  --space-2xl: 48px;
+  --space-3xl: 64px;
+
+  /* ---------- RAYONS ---------- */
+  --radius-sm: 4px;   /* boutons, champs */
+  --radius-md: 8px;   /* cartes */
+  --radius-lg: 16px;  /* panneaux, modales */
+  --radius-pill: 999px;
+
+  /* ---------- BORDURES ---------- */
+  --border-width: 1px;
+
+  /* ---------- OMBRES (teinte violet) ---------- */
+  --shadow-sm: 0 1px 3px rgba(45,21,87,0.08);
+  --shadow-md: 0 4px 12px rgba(45,21,87,0.12);
+  --shadow-lg: 0 8px 32px rgba(45,21,87,0.16);
+}
+
+/* ============================================================
+   STYLES SÉMANTIQUES DE BASE
+   ============================================================ */
+
+body {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: var(--leading-body);
+  color: var(--color-text);
+  background: var(--color-bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  color: var(--color-primary);
+  line-height: var(--leading-tight);
+  margin: 0;
+}
+
+h1 { font-size: var(--text-2xl); font-weight: 700; }
+h2 { font-size: var(--text-xl); font-weight: 600; }
+h3 { font-size: var(--text-lg); font-weight: 500; color: var(--color-text-sub); }
+
+p  { margin: 0 0 var(--space-md); text-wrap: pretty; }
+
+small, .caption {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+code, pre, .mono {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+}
+
+a { color: var(--color-primary-mid); text-decoration: none; }
+a:hover { color: var(--color-accent); }
+
+em, .quote { font-style: italic; }
+
+/* Trait magenta — motif récurrent de séparation/accent */
+.synelia-rule {
+  width: 56px;
+  height: 3px;
+  background: var(--color-accent);
+  border: none;
+  margin: var(--space-md) 0;
+}
