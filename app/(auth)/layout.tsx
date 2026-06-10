@@ -1,42 +1,46 @@
-import { ArrowLeftIcon } from "lucide-react";
-import Link from "next/link";
-import { SparklesIcon, VercelIcon } from "@/components/chat/icons";
-import { Preview } from "@/components/chat/preview";
-
 export default function AuthLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex h-dvh w-screen bg-sidebar">
-      <div className="flex w-full flex-col bg-background p-8 xl:w-[600px] xl:shrink-0 xl:rounded-r-2xl xl:border-r xl:border-border/40 md:p-16">
-        <Link
-          className="flex w-fit items-center gap-1.5 text-[13px] text-muted-foreground transition-colors hover:text-foreground"
-          href="/"
+    <div className="grid h-dvh w-screen lg:grid-cols-[minmax(420px,44%)_1fr]">
+      {/* Panneau de marque — visible à partir de lg */}
+      <div className="hidden flex-col justify-between bg-primary-dark p-12 text-white lg:flex">
+        <div
+          className="flex items-baseline gap-2"
+          style={{ fontFamily: "var(--font-display)" }}
         >
-          <ArrowLeftIcon className="size-3.5" />
-          Back
-        </Link>
-        <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center gap-10">
-          <div className="flex flex-col gap-2">
-            <div className="mb-2 flex size-9 items-center justify-center rounded-lg bg-muted/60 text-muted-foreground ring-1 ring-border/50">
-              <SparklesIcon size={14} />
-            </div>
-            {children}
-          </div>
+          <span className="font-bold text-lg tracking-[0.18em]">SYNELIA</span>
+          <span className="text-white/40">·</span>
+          <span className="font-medium text-lg text-white/80">Cowork</span>
         </div>
+
+        <div className="flex flex-col gap-5">
+          <span className="text-[11px] text-white/60 uppercase tracking-[0.14em]">
+            Direction Data &amp; IA
+          </span>
+          <h1
+            className="max-w-md font-bold text-4xl leading-tight"
+            style={{ fontFamily: "var(--font-display)" }}
+          >
+            Travaillez avec l&apos;IA, ensemble.
+          </h1>
+          <div className="synelia-rule" />
+          <p className="max-w-sm text-[15px] text-white/70 leading-relaxed">
+            Projets partagés, conversations en temps réel et artefacts générés —
+            l&apos;espace de travail IA de la Direction Data &amp; IA.
+          </p>
+        </div>
+
+        <p className="text-white/50 text-xs">
+          © Groupe Synelia — Connexion sécurisée
+        </p>
       </div>
 
-      <div className="hidden flex-1 flex-col overflow-hidden pl-12 xl:flex">
-        <div className="flex items-center gap-1.5 pt-8 text-[13px] text-muted-foreground/50">
-          Powered by
-          <VercelIcon size={14} />
-          <span className="font-medium text-muted-foreground">AI Gateway</span>
-        </div>
-        <div className="flex-1 pt-4">
-          <Preview />
-        </div>
+      {/* Colonne formulaire */}
+      <div className="flex items-center justify-center bg-secondary p-6">
+        {children}
       </div>
     </div>
   );

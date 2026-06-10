@@ -25,11 +25,11 @@ export default function Page() {
   // biome-ignore lint/correctness/useExhaustiveDependencies: router and updateSession are stable refs
   useEffect(() => {
     if (state.status === "failed") {
-      toast({ type: "error", description: "Invalid credentials!" });
+      toast({ type: "error", description: "Identifiants invalides." });
     } else if (state.status === "invalid_data") {
       toast({
         type: "error",
-        description: "Failed validating your submission!",
+        description: "Veuillez vérifier les champs saisis.",
       });
     } else if (state.status === "success") {
       setIsSuccessful(true);
@@ -44,23 +44,30 @@ export default function Page() {
   };
 
   return (
-    <>
-      <h1 className="text-2xl font-semibold tracking-tight">Welcome back</h1>
-      <p className="text-sm text-muted-foreground">
-        Sign in to your account to continue
-      </p>
+    <div className="w-full max-w-md rounded-2xl border border-border bg-card p-8 shadow-[var(--shadow-float)]">
+      <div className="mb-6 flex flex-col gap-1.5">
+        <h1
+          className="font-semibold text-2xl text-primary"
+          style={{ fontFamily: "var(--font-display)" }}
+        >
+          Connexion
+        </h1>
+        <p className="text-muted-foreground text-sm">
+          Accédez à votre espace de travail.
+        </p>
+      </div>
       <AuthForm action={handleSubmit} defaultEmail={email}>
-        <SubmitButton isSuccessful={isSuccessful}>Sign in</SubmitButton>
+        <SubmitButton isSuccessful={isSuccessful}>Se connecter</SubmitButton>
         <p className="text-center text-[13px] text-muted-foreground">
-          {"No account? "}
+          {"Pas encore de compte ? "}
           <Link
-            className="text-foreground underline-offset-4 hover:underline"
+            className="font-medium text-primary-mid transition-colors hover:text-magenta"
             href="/register"
           >
-            Sign up
+            Demander un accès
           </Link>
         </p>
       </AuthForm>
-    </>
+    </div>
   );
 }
