@@ -3,6 +3,7 @@ export type ErrorType =
   | "unauthorized"
   | "forbidden"
   | "not_found"
+  | "conflict"
   | "rate_limit"
   | "offline";
 
@@ -16,6 +17,8 @@ export type Surface =
   | "vote"
   | "document"
   | "suggestions"
+  | "workspace"
+  | "project"
   | "activate_gateway";
 
 export type ErrorCode = `${ErrorType}:${Surface}`;
@@ -32,6 +35,8 @@ export const visibilityBySurface: Record<Surface, ErrorVisibility> = {
   vote: "response",
   document: "response",
   suggestions: "response",
+  workspace: "response",
+  project: "response",
   activate_gateway: "response",
 };
 
@@ -112,6 +117,25 @@ export function getMessageByErrorCode(errorCode: ErrorCode): string {
     case "bad_request:document":
       return "The request to create or update the document was invalid. Please check your input and try again.";
 
+    case "not_found:workspace":
+      return "Cet espace de travail est introuvable.";
+    case "forbidden:workspace":
+      return "Vous n'êtes pas membre de cet espace de travail.";
+    case "unauthorized:workspace":
+      return "Veuillez vous connecter pour accéder à cet espace de travail.";
+    case "bad_request:workspace":
+      return "La requête sur l'espace de travail est invalide.";
+
+    case "not_found:project":
+      return "Ce projet est introuvable.";
+    case "forbidden:project":
+      return "Vous n'avez pas accès à ce projet.";
+    case "bad_request:project":
+      return "La requête sur le projet est invalide.";
+
+    case "conflict:chat":
+      return "Une génération est déjà en cours dans cette conversation.";
+
     default:
       return "Something went wrong. Please try again later.";
   }
@@ -127,6 +151,8 @@ function getStatusCodeByType(type: ErrorType) {
       return 403;
     case "not_found":
       return 404;
+    case "conflict":
+      return 409;
     case "rate_limit":
       return 429;
     case "offline":

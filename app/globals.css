@@ -341,6 +341,23 @@ textarea:focus-visible {
   border: none;
 }
 
+/* Point pulsant magenta de la pastille « En direct » */
+@keyframes pulse-mag {
+  0% {
+    box-shadow: 0 0 0 0 rgba(192, 41, 122, 0.45);
+  }
+  70% {
+    box-shadow: 0 0 0 7px rgba(192, 41, 122, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(192, 41, 122, 0);
+  }
+}
+
+.live-pill-dot {
+  animation: pulse-mag 1.6s infinite;
+}
+
 @utility dot-pulse {
   animation: dot-pulse 1.4s ease-in-out infinite;
 }

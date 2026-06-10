@@ -175,6 +175,9 @@ export async function POST(request: Request) {
             parts: message.parts,
             attachments: [],
             createdAt: new Date(),
+            authorId: session.user.id,
+            tag: null,
+            isInterrupted: false,
           },
         ],
       });
@@ -273,6 +276,10 @@ export async function POST(request: Request) {
                     createdAt: new Date(),
                     attachments: [],
                     chatId: id,
+                    authorId:
+                      finishedMsg.role === "user" ? session.user.id : null,
+                    tag: null,
+                    isInterrupted: false,
                   },
                 ],
               });
@@ -287,6 +294,9 @@ export async function POST(request: Request) {
               createdAt: new Date(),
               attachments: [],
               chatId: id,
+              authorId: currentMessage.role === "user" ? session.user.id : null,
+              tag: null,
+              isInterrupted: false,
             })),
           });
         }

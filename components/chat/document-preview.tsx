@@ -109,6 +109,10 @@ export function DocumentPreview({
           id: artifact.documentId,
           createdAt: new Date(),
           userId: "noop",
+          projectId: null,
+          chatId: null,
+          shareScope: "project" as const,
+          shareToken: null,
         }
       : null;
 
